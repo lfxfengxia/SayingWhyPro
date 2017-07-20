@@ -1,0 +1,174 @@
+//
+//  DSYCouponUsedController.m
+//  LYDApp
+//
+//  Created by dai yi on 2016/11/10.
+//  Copyright © 2016年 dookay_73. All rights reserved.
+//  已使用
+
+#import "DSYCouponUsedController.h"
+#import "DSYCouponModel.h"
+#import "DSYCouponThirdCell.h"
+
+#define kDSYPageSize 15
+
+@interface DSYCouponUsedController ()<UITableViewDelegate, UITableViewDataSource>
+
+@property (nonatomic, strong) NSMutableArray *dataList;           /**< 保存数据的数据 */
+@property (nonatomic, assign) NSInteger pageIndex;
+
+@end
+
+@implementation DSYCouponUsedController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    self.view.backgroundColor = rgba(249, 249, 249, 1);
+    
+    [self setupUI];
+    
+    [self loadData];
+}
+
+- (NSMutableArray *)dataList {
+    if (!_dataList) {
+        _dataList = [NSMutableArray arrayWithCapacity:0];
+    }
+    return _dataList;
+}
+
+
+- (void)setupUI {
+    self.contentTableView.delegate = self;
+    self.contentTableView.dataSource = self;
+    self.contentTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    self.contentTableView.rowHeight = H(132);
+    self.contentTableView.header = [MJRefreshNormalHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadData)];
+    self.contentTableView.footer = [MJRefreshAutoNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
+}
+
+- (void)loadData {
+    self.pageIndex = 1;
+    //    [self.dataList removeAllObjects];
+    NSString *url = [NSString stringWithFormat:@"%@/user/coupons", APIPREFIX];
+    NSDictionary *para = [self getMyParaWithIndex:self.pageIndex];
+    [MBProgressHUD showMessage:@"正在加载数据..." toView:self.view];
+    [LYDTool sendGetWithUrl:url parameters:para success:^(id data) {
+        [MBProgressHUD hideHUDForView:self.view];
+        id backData = LYDJSONSerialization(data);
+        NSLog(@"%@", backData);
+        [self successDealWithData:backData];
+        
+    } fail:^(NSError *error, AFHTTPRequestOperation *operation) {
+        [MBProgressHUD hideHUDForView:self.view];
+        self.pageIndex--;
+        // 错误处理方法
+        [self errorDealWithOperation:operation];
+    }];
+}
+
+- (void)loadMoreData {
+    self.pageIndex++;
+    NSString *url = [NSString stringWithFormat:@"%@/user/coupons", APIPREFIX];
+    NSDictionary *para = [self getMyParaWithIndex:self.pageIndex];
+    [LYDTool sendGetWithUrl:url parameters:para success:^(id data) {
+        id backData = LYDJSONSerialization(data);
+        NSLog(@"%@", backData);
+        [self successDealWithData:backData];
+        
+    } fail:^(NSError *error, AFHTTPRequestOperation *operation) {
+        // 错误处理方法
+        [self errorDealWithOperation:operation];
+    }];
+}
+
+
+- (NSDictionary *)getMyParaWithIndex:(NSInteger)pageIndex {
+    NSString *timestamp = [LYDTool createTimeStamp];
+    NSDictionary *secretDict = @{@"appKey":APPKEY, @"timestamp":timestamp, @"deviceId":DEVICEID, @"token":TOKEN, @"pageIndex":@(pageIndex), @"pageSize":@(kDSYPageSize), @"status":@2};
+    // 生成签名认证
+    NSString *sign = [LYDTool createMD5SignWithDictionary:secretDict];
+    NSDictionary *para = @{@"appKey":APPKEY, @"timestamp":timestamp, @"deviceId":DEVICEID, @"token":TOKEN, @"pageIndex":@(pageIndex), @"pageSize":@(kDSYPageSize),  @"status":@2, @"sign":sign};
+    
+    return para;
+}
+
+#pragma mark 成功处理
+- (void)successDealWithData:(id)data {
+    [MBProgressHUD hideHUDForView:self.view];
+    [self.contentTableView.footer endRefreshing];
+    [self.contentTableView.header endRefreshing];
+    NSInteger statusCode = [data[@"code"] integerValue];;
+    
+    if (statusCode == 200) {
+        NSMutableArray *tempArr = [DSYCouponModel baseModelByArr:data[@"couponModelList"]];
+        // 数据加载成功后设置相应的信息
+        if (self.pageIndex == 1) {
+            self.dataList = tempArr;
+        } else {
+            // 成功加载数据，当是加载更多的时候
+            [self.dataList addObjectsFromArray:tempArr];
+        }
+        if (tempArr.count < kDSYPageSize) {
+            [self.contentTableView.footer noticeNoMoreData];
+            // 如果没有更多数据就让page恢复
+            self.pageIndex --;
+        }
+        [self.contentTableView reloadData];
+    } else if (statusCode == 600) {
+        [DSYUtils showSuccessForStatus_600_ForViewController:self];
+    } else {
+        [MBProgressHUD showError:data[@"message"] toView:self.view];
+        // 如果加载数据有问题就让page恢复
+        self.pageIndex--;
+    }
+}
+
+#pragma mark 错误处理
+- (void)errorDealWithOperation:(AFHTTPRequestOperation *)operation {
+    [MBProgressHUD hideHUDForView:self.view];
+    [self.contentTableView.footer endRefreshing];
+    [self.contentTableView.header endRefreshing];
+    NSInteger errorData = operation.response.statusCode;
+    NSLog(@"%zi",operation.response.statusCode);
+    if (errorData == 401) {
+        // 401错误处理
+        [DSYUtils showResponseError_401_ForViewController:self];
+    } else if (errorData == 404) {
+        [DSYUtils showResponseError_404_ForViewController:self message:@"未找到该用户，是否登陆" okHandler:^(UIAlertAction *action) {
+            [self.navigationController popToRootViewControllerAnimated:YES];
+            
+        } cancelHandler:^(UIAlertAction *action) {
+        }];
+    } else {
+        XYErrorHud *errorHud = [[XYErrorHud alloc] initWithTitle:@"网络繁忙" andDoneBtnTitle:nil andDoneBtnHidden:YES];
+        [self.view.window addSubview:errorHud];
+    }
+}
+
+#pragma mark - contentTableView的DataSource和Delegate方法
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    DSYCouponThirdCell *cell = [DSYCouponThirdCell cellForTableView:tableView];
+    
+    DSYCouponModel *coupon = self.dataList[indexPath.row];
+    
+    cell.coupon = coupon;
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    
+    return cell;
+}
+
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return self.dataList.count;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+@end

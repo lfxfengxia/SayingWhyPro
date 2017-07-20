@@ -1,0 +1,361 @@
+//
+//  FenShuInvestmentView.m
+//  LYDApp
+//
+//  Created by lyd_Mac on 2017/6/26.
+//  Copyright © 2017年 dookay_73. All rights reserved.
+//
+
+#import "FenShuInvestmentView.h"
+
+@implementation FenShuInvestmentView
+
+-(instancetype)initWithFrame:(CGRect)frame
+{
+    self=[super initWithFrame:frame];
+    if (self) {
+        self.count=1;
+        self.backgroundColor=[UIColor whiteColor];
+        UILabel *label1=[[UILabel alloc]init];
+        label1.text=@"投资份数";
+        label1.textColor=RGB(134, 134, 134);
+        label1.font=[UIFont fontWithName:@"PingFangSC-Regular" size:KHeight(12)];
+        [self addSubview:label1];
+        [label1 mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.mas_left).mas_offset(KWidth(12));
+            make.top.equalTo(self.mas_top).mas_offset(KHeight(12));
+            make.size.mas_equalTo(CGSizeMake(KWidth(50), KHeight(30)));
+        }];
+        
+        self.reduceBtn=[[UIButton alloc]init];
+        [self.reduceBtn setBackgroundImage:[UIImage imageNamed:@"减"] forState:UIControlStateNormal];
+        [self.reduceBtn addTarget:self action:@selector(reduce) forControlEvents:UIControlEventTouchUpInside];
+        [self addSubview:self.reduceBtn];
+        [self.reduceBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(label1.mas_right).mas_offset(KWidth(20));
+            make.top.equalTo(self.mas_top).mas_offset(KWidth(14));
+            make.size.mas_equalTo(CGSizeMake(KWidth(25), KHeight(25)));
+        }];
+        
+        self.Field=[[UITextField alloc]init];
+        self.Field.textColor=[UIColor clearColor];
+        self.Field.textAlignment=NSTextAlignmentCenter;
+        self.Field.layer.cornerRadius=15.0f;
+        self.Field.keyboardType=UIKeyboardTypeNumberPad;
+        self.Field.layer.borderWidth=0.5;
+        self.Field.layer.borderColor=RGB(255, 121, 1).CGColor;
+        self.Field.delegate=self;
+        [self.Field addTarget:self action:@selector(fieldTextChang) forControlEvents:UIControlEventEditingChanged];
+        [self addSubview:self.Field];
+    
+        [self.Field mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.reduceBtn.mas_right).mas_offset(KWidth(10));
+            make.top.equalTo(self.mas_top).mas_offset(KHeight(12));
+            make.size.mas_equalTo(CGSizeMake(KWidth(162), KHeight(30)));
+        }];
+        
+        self.fenshuLabel=[[UILabel alloc]init];
+        self.fenshuLabel.text=@"1";
+        self.fenshuLabel.textAlignment=NSTextAlignmentCenter;
+        [self addSubview:self.fenshuLabel];
+        [self.fenshuLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerX.equalTo(self.Field.mas_centerX).mas_offset(-2);
+            make.centerY.equalTo(self.Field.mas_centerY);
+            make.height.mas_equalTo(KHeight(30));
+        }];
+        
+        UILabel *fen=[[UILabel alloc]init];
+        fen.text=@"份";
+        [self addSubview:fen];
+        [fen mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.fenshuLabel.mas_right).mas_offset(2);
+            make.height.mas_equalTo(KHeight(30));
+            make.top.equalTo(self.fenshuLabel.mas_top);
+        }];
+        
+        self.addBtn=[[UIButton alloc]init];
+        [self.addBtn setBackgroundImage:[UIImage imageNamed:@"加"] forState:UIControlStateNormal];
+        [self.addBtn addTarget:self action:@selector(add) forControlEvents:UIControlEventTouchUpInside];
+        [self addSubview:self.addBtn];
+        [self.addBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.Field.mas_right).mas_offset(KWidth(10));
+            make.top.equalTo(self.mas_top).mas_offset(KWidth(14));
+            make.size.mas_equalTo(CGSizeMake(KWidth(25), KHeight(25)));
+        }];
+
+        UILabel *label2=[[UILabel alloc]init];
+        label2.text=@"预期收益";
+        label2.textColor=RGB(134, 134, 134);
+        label2.font=[UIFont fontWithName:@"PingFangSC-Regular" size:KHeight(12)];
+        [self addSubview:label2];
+        [label2 mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.mas_left).mas_offset(KWidth(12));
+            make.top.equalTo(label1.mas_bottom).mas_offset(KHeight(22));
+            make.size.mas_equalTo(CGSizeMake(KWidth(50), KHeight(14)));
+        }];
+        
+        self.earnings=[[UILabel alloc]init];
+        self.earnings.text=@"";
+        self.earnings.textColor=RGB(240, 89, 78);
+        self.earnings.font=[UIFont fontWithName:@"PingFangSC-Regular" size:KHeight(17)];
+        [self addSubview:self.earnings];
+        [self.earnings mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(label2.mas_right).mas_offset(KWidth(20));
+            make.top.equalTo(label1.mas_bottom).mas_offset(KHeight(20));
+            make.height.mas_equalTo(KHeight(17));
+        }];
+        
+        UILabel *label3=[[UILabel alloc]init];
+        label3.text=@"投资总额";
+        label3.textColor=RGB(134, 134, 134);
+        label3.font=[UIFont fontWithName:@"PingFangSC-Regular" size:KHeight(12)];
+        [self addSubview:label3];
+        [label3 mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.mas_left).mas_offset(KWidth(12));
+            make.top.equalTo(label2.mas_bottom).mas_offset(KHeight(30));
+            make.size.mas_equalTo(CGSizeMake(KWidth(50), KHeight(17)));
+        }];
+
+        self.total=[[UILabel alloc]init];
+        self.total.textColor=RGB(34, 34, 34);
+        self.total.font=[UIFont fontWithName:@"PingFangSC-Regular" size:KHeight(17)];
+        self.total.textAlignment=NSTextAlignmentLeft;
+        [self addSubview:self.total];
+        [self.total mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(label3.mas_right).mas_offset(KWidth(20));
+            make.top.equalTo(label2.mas_bottom).mas_offset(KHeight(28));
+            make.height.mas_equalTo(KHeight(17));
+        }];
+        
+        UILabel *label4=[[UILabel alloc]init];
+        label4.text=@"余      额";
+        label4.textColor=RGB(134, 134, 134);
+        label4.font=[UIFont fontWithName:@"PingFangSC-Regular" size:KHeight(12)];
+        [self addSubview:label4];
+        [label4 mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.mas_left).mas_offset(KWidth(12));
+            make.top.equalTo(label3.mas_bottom).mas_offset(KHeight(30));
+            make.size.mas_equalTo(CGSizeMake(KWidth(50), KHeight(17)));
+        }];
+
+        self.balance=[[UILabel alloc]init];
+        self.balance.textAlignment=NSTextAlignmentLeft;
+        self.balance.textColor=RGB(34, 34, 34);
+        self.balance.font=[UIFont fontWithName:@"PingFangSC-Regular" size:KHeight(17)];
+        [self addSubview:self.balance];
+        [self.balance mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(label4.mas_right).mas_offset(KWidth(20));
+            make.top.equalTo(label3.mas_bottom).mas_offset(KHeight(28));
+            make.height.mas_equalTo(KHeight(17));
+        }];
+        
+        self.rechargeBtn=[[UIButton alloc]init];
+        [self.rechargeBtn setBackgroundImage:[UIImage imageNamed:@"充值"] forState:UIControlStateNormal];
+        [self.rechargeBtn setTitle:@"充值" forState:UIControlStateNormal];
+        [self.rechargeBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        self.rechargeBtn.titleLabel.font=[UIFont fontWithName:@".PingFangSC-Regular" size:KHeight(17)];
+        [self.rechargeBtn addTarget:self action:@selector(rechargeMoney) forControlEvents:UIControlEventTouchUpInside];
+        [self addSubview:self.rechargeBtn];
+        [self.rechargeBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.equalTo(self.mas_right).mas_offset(-KHeight(8));
+            make.bottom.equalTo(self.mas_bottom).mas_offset(-KHeight(4));
+            make.size.mas_equalTo(CGSizeMake(KWidth(140), KHeight(46)));
+        }];
+    }
+    return self;
+}
+
+-(void)setFenShuInvestmentViewInformation:(NSString *)availableBalance XYPlanModel:(XYPlanModel *)model{
+    _model=model;
+    self.balance.text=[NSString stringWithFormat:@"¥%@",availableBalance];
+    self.total.text=[NSString stringWithFormat:@"¥%0.2f",self.count*[model.perAmount  floatValue]];
+    CGFloat investAmout = [[self.total.text substringFromIndex:1] floatValue];
+    NSInteger months = [model.periods integerValue];
+    CGFloat rate = [model.apr floatValue] / 100;
+    self.earnings.text=[NSString stringWithFormat:@"¥%.2f", investAmout * months * rate / 12];
+}
+
+
+-(void)reduce
+{
+    if(self.count>1)
+    {
+        self.count--;
+        self.Field.text=[NSString stringWithFormat:@"%ld",self.count];
+        self.fenshuLabel.text=self.Field.text;
+        self.total.text=[NSString stringWithFormat:@"¥%0.2f",self.count*[_model.perAmount  floatValue]];
+        CGFloat investAmout = [[self.total.text substringFromIndex:1] floatValue];
+        NSInteger months = [_model.periods integerValue];
+        CGFloat rate = [_model.apr floatValue] / 100;
+        self.earnings.text=[NSString stringWithFormat:@"￥%.2f", investAmout * months * rate / 12];
+    }
+}
+
+-(void)add
+{
+    
+    
+    
+    
+    
+//    if([_model.bidType integerValue]==2)
+//    {
+//        if([self.Field.text integerValue]>10)
+//        {
+//            self.Field.text=@"10";
+//        }else if ([self.Field.text isEqualToString:@""])
+//        {
+//            self.Field.text=@"1";
+//        }else if ([self.Field.text integerValue]<1)
+//        {
+//            self.Field.text=@"1";
+//        }
+//        
+//    }else
+//    {   if([self.Field.text integerValue]>200)
+//    {
+//        self.Field.text=@"200";
+//    }else if ([self.Field.text isEqualToString:@""])
+//    {
+//        self.Field.text=@"1";
+//    }else if ([self.Field.text integerValue]<1)
+//    {
+//        self.Field.text=@"1";
+//    }
+//    }
+
+    
+    
+    
+//    if([_model.bidType integerValue]==2)
+//    {
+//        if([self.Field.text integerValue]>10)
+//        {
+//            self.Field.text=@"10";
+//        }else if ([self.Field.text isEqualToString:@""])
+//        {
+//            self.Field.text=@"1";
+//        }else if ([self.Field.text integerValue]<1)
+//        {
+//            self.Field.text=@"1";
+//        }
+//        
+//    }else
+//    {   if([self.Field.text integerValue]>200)
+//    {
+//        self.Field.text=@"200";
+//    }else if ([self.Field.text isEqualToString:@""])
+//    {
+//        self.Field.text=@"1";
+//    }else if ([self.Field.text integerValue]<1)
+//    {
+//        self.Field.text=@"1";
+//    }
+//    }
+    
+    
+    if([_model.bidType integerValue]==2)
+    {
+        if(self.count<10)
+        {
+            self.count++;
+            self.Field.text=[NSString stringWithFormat:@"%ld",self.count];
+            self.fenshuLabel.text=self.Field.text;
+            self.total.text=[NSString stringWithFormat:@"¥%0.2f",self.count*[_model.perAmount  floatValue]];
+            CGFloat investAmout = [[self.total.text substringFromIndex:1] floatValue];
+            NSInteger months = [_model.periods integerValue];
+            CGFloat rate = [_model.apr floatValue] / 100;
+            self.earnings.text=[NSString stringWithFormat:@"￥%.2f", investAmout * months * rate / 12];
+        }
+        
+    }else
+    {
+    
+        if(self.count<200)
+        {
+            self.count++;
+            self.Field.text=[NSString stringWithFormat:@"%ld",self.count];
+            self.fenshuLabel.text=self.Field.text;
+            self.total.text=[NSString stringWithFormat:@"¥%0.2f",self.count*[_model.perAmount  floatValue]];
+            CGFloat investAmout = [[self.total.text substringFromIndex:1] floatValue];
+            NSInteger months = [_model.periods integerValue];
+            CGFloat rate = [_model.apr floatValue] / 100;
+            self.earnings.text=[NSString stringWithFormat:@"￥%.2f", investAmout * months * rate / 12];
+        }
+    
+    
+    }
+    
+        
+    
+    
+    
+    
+
+}
+
+-(void)fieldTextChang
+{
+    if([_model.bidType integerValue]==2)
+    {
+        if([self.Field.text integerValue]>10)
+        {
+            self.Field.text=@"10";
+        }else if ([self.Field.text isEqualToString:@""])
+        {
+            self.Field.text=@"1";
+        }else if ([self.Field.text integerValue]<1)
+        {
+            self.Field.text=@"1";
+        }
+
+    }else
+    {   if([self.Field.text integerValue]>200)
+        {
+            self.Field.text=@"200";
+        }else if ([self.Field.text isEqualToString:@""])
+        {
+            self.Field.text=@"1";
+        }else if ([self.Field.text integerValue]<1)
+        {
+            self.Field.text=@"1";
+        }
+    }
+    self.count=[self.Field.text integerValue];
+    self.fenshuLabel.text=self.Field.text;
+    self.total.text=[NSString stringWithFormat:@"¥%0.2f",self.count*[_model.perAmount  floatValue]];
+    CGFloat investAmout = [[self.total.text substringFromIndex:1] floatValue];
+    NSInteger months = [_model.periods integerValue];
+    CGFloat rate = [_model.apr floatValue] / 100;
+    self.earnings.text=[NSString stringWithFormat:@"￥%.2f", investAmout * months * rate / 12];
+    
+    
+    
+    
+}
+
+
+-(void)rechargeMoney
+{
+    
+    
+    [self.delegate didClickButtonChongzhi:nil];
+//    if ([DSYAccount sharedDSYAccount].mobile.length == 0) {
+//        [DSYUtils showResponseError_404_ForViewController:self message:@"当前用户获取失败" okHandler:^(UIAlertAction *action) {
+//            // 清空Token
+//            UserDefaultsWriteObj(@"", @"access-token");
+//            [DSYAccount sharedDSYAccount].refresh = NO;
+//            XYLoginController *loginVC = [[XYLoginController alloc] init];
+//            loginVC.hiddenBackBtn = YES;
+//            [self.navigationController pushViewController:loginVC animated:NO];
+//        } cancelHandler:^(UIAlertAction * action) {
+//        }];
+//        return;
+//    }
+//    
+//    DSYAccountRechargeController *rechargeVC = [[DSYAccountRechargeController alloc] init];
+//    rechargeVC.hidesBottomBarWhenPushed = YES;
+//    [self.navigationController pushViewController:rechargeVC animated:YES];
+}
+
+@end

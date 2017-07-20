@@ -1,0 +1,424 @@
+//
+//  PrefixHeader.pch
+//  LYDApp
+//
+//  Created by dookay_73 on 16/10/31.
+//  Copyright © 2016年 dookay_73. All rights reserved.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+#import "AppDelegate.h"
+#import "UIView+Extension.h"
+#import "MBProgressHUD+NJ.h"
+#import "Helper.h"
+#import <UMSocialCore/UMSocialCore.h>
+#import "UIImageView+WebCache.h"
+#import "UIButton+WebCache.h"
+#import "AFNetworking.h"
+#import "LYDTool.h"
+#import "TZImagePickerController.h"
+#import "MJRefresh.h"
+
+#import "WHC_HttpManager.h"
+#import "UIImage+Resize.h"
+#import "STPhotoBrowserController.h"
+#import "STConfig.h"
+#import "HTHorizontalSelectionList.h"
+#import "SDWebImageManager.h"
+#import "UIImageView+WebCache.h"
+#import "XYMainTabBarController.h"
+#import "XYLoginController.h"
+#import "XYMainScrollView.h"
+#import "XYMainTextField.h"
+#import "SDCycleScrollView.h"
+#import "BRPlaceholderTextView.h"
+#import "RYFactoryMethod.h"
+#import "UIScrollView+Touch.h"
+#import "XYErrorHud.h"
+#import "Masonry.h"
+
+
+
+#define kSCREENW [UIScreen mainScreen].bounds.size.width
+#define kSCREENH [UIScreen mainScreen].bounds.size.height
+#define NavMaxY (self.navigationController.navigationBar.frame.size.height + [UIApplication sharedApplication].statusBarFrame.size.height + [UIApplication sharedApplication].statusBarFrame.origin.y)
+
+#define LYDJSONSerialization(data) [NSJSONSerialization JSONObjectWithData:!(data) ? ([@"" dataUsingEncoding:NSUTF8StringEncoding]) : (data) options:NSJSONReadingMutableContainers error:nil]
+#define TEXTBLACK [UIColor colorWithRed:0.48 green:0.48 blue:0.48 alpha:1.00]
+#define TEXTGARY  [UIColor colorWithRed:0.76 green:0.71 blue:0.69 alpha:1.00]
+#define ORANGECOLOR [UIColor colorWithRed:0.98 green:0.42 blue:0.13 alpha:1.00]
+
+#define BgColor [UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1.00]
+#define LIGHTGRAYTEXT [UIColor colorWithRed:0.922 green:0.922 blue:0.922 alpha:1.00]
+
+#define KWidth(iphone6Width) (iphone6Width)*kSCREENW/375
+#define KHeight(iphone6Height) (iphone6Height)*kSCREENH/667
+#define HEIGHT [[UIScreen mainScreen] bounds].size.height
+#define WIDTH [[UIScreen mainScreen] bounds].size.width
+//各种屏幕尺寸的页面高度和宽度适配因子
+#define hx WIDTH/320
+#define hy HEIGHT/568
+
+
+//各种屏幕尺寸的字体适配
+#define myfontSize HEIGHT > 667 ? 16 : (HEIGHT > 568 ? 14 : (HEIGHT > 480 ? 12 : 11))
+#define myFontSize HEIGHT > 667 ? 15 : (HEIGHT > 568 ? 13 : (HEIGHT > 480 ? 11 : 10))
+#define AppleID @"1091450596"
+#define TOKEN   [[[NSUserDefaults standardUserDefaults] valueForKey:@"access-token"] length] > 0 ? [[NSUserDefaults standardUserDefaults] valueForKey:@"access-token"] : @""
+//#define APIPREFIX @"http://testrest.lingyongdai.com"
+//#define APIPREFIX @"http://27.115.115.86:8085"
+//#define  APIPREFIX  @"http://test12.coralcodes.com"
+//#define APIPREFIX  @"http://lyd-invest-api.doolab.cn"
+//http://192.168.254.177:8080
+//#define APIPREFIX  @"http://testinvestrest.lingyongdai.com"
+//张意乐
+//#define APIPREFIX  @"http://27.115.115.86:8090"
+
+//李楠
+//#define APIPREFIX  @"http://27.115.115.86:8060"
+
+
+//王兵
+//#define APIPREFIX  @"http://27.115.115.86:8061"
+
+//新版本
+#define APIPREFIX  @"http://27.115.115.86:9580"
+
+//迁移数据库
+//#define APIPREFIX  @"http://27.115.115.86:8490"
+//正式环境
+//#define APIPREFIX  @"https://appinvest.lingyongdai.com"
+//服务协议
+#define ServiceAgreement  @"https://www.lingyongdai.com"
+
+
+
+
+
+
+
+
+
+#define APPKEY @"IOSAppKey"
+#define DEVICEID [[UIDevice currentDevice].identifierForVendor UUIDString] 
+
+//#define KWIDTH(iphone6Width) (iphone6Width)*kSCREENW/375
+//#define KHEIGHT(iphone6Height) (iphone6Height)*kSCREENH/667
+/************************************************* 代书义 ********************************************************/
+
+// 颜色
+// rgbcolor
+#define rgba(__r__, __g__, __b__, __a__) [UIColor colorWithRed:__r__ / 255.0 green:__g__ / 255.0 blue:__b__ / 255.0 alpha:__a__]
+
+// 屏幕适配比例，分别为x,y,w,h
+// 屏幕适配比例，分别为x,y,w,h
+#define X(__x__) ((__x__) / 375.0 * kSCREENW)
+#define Y(__y__) ((__y__) / 667.0 * kSCREENH)
+#define W(__w__) ((__w__) / 375.0 * kSCREENW)
+#define H(__h__) ((__h__) / 667.0 * kSCREENH)
+
+// 图片
+#define DSYImage(imageName) [UIImage imageNamed:imageName]
+
+// 占位图
+#define kPlaceholderImg [UIImage imageNamed:@"renxiang.png"]
+
+// 默认cell高度
+#define kNormalCellHeight (H(44) < 44 ? 44 : H(44))
+
+// 字体
+#define DSY_NORMALFONT_18 [UIFont systemFontOfSize:KWidth(18.0f)]
+#define DSY_NORMALFONT_16 [UIFont systemFontOfSize:KWidth(16.0f)]
+#define DSY_NORMALFONT_15 [UIFont systemFontOfSize:KWidth(15.0f)]
+#define DSY_NORMALFONT_14 [UIFont systemFontOfSize:KWidth(14.0f)]
+#define DSY_NORMALFONT_13 [UIFont systemFontOfSize:KWidth(13.0f)]
+#define DSY_NORMALFONT_11 [UIFont systemFontOfSize:KWidth(11.0f)]
+#define DSY_NORMALFONT_12 [UIFont systemFontOfSize:KWidth(12.0f)]
+#define DSY_NORMALFONT_10 [UIFont systemFontOfSize:KWidth(10.0f)]
+
+//
+#import "DSYBaseViewController.h"
+#import "UILabel+FixWidth.h"
+#import "UIImage+DSY.h"
+#import "NSDate+DSY.h"
+#import "UIView+AddLine.h"
+#import "Singleton.h"
+#import "DSYUtils.h"
+#import "UITextField+DSY.h"
+#import "NSString+DSY.h"
+
+// 开户
+#import "DSYOpenAccountController.h"
+// 绑定银行卡
+#import "DSYBindCardViewController.h"
+// 充值页面
+#import "DSYAccountRechargeController.h"
+
+#import "UIViewController+DSY.h"
+
+
+
+
+
+
+/////////////////                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    // 新版本
+//// 域名
+#define HFAPIREFIX      @"http://27.115.115.86:9580"
+
+#define kHUIFUCALLBACKURL @"http://27.115.115.86:9580/u"
+
+#define kErrorHuiFuCallBackUrl @"http://27.115.115.86:9580/chinapnr/response/appError"
+#define kSucessHuiFuCallBackUrl @"http://27.115.115.86:9580/chinapnr/response/appSuccess"
+
+
+// 开户
+#define kSuccessOpenAcountCallBackUrl @"http://27.115.115.86:9580/chinapnr/response/userRegister"
+
+// 充值
+#define kSuccessRechargeCallBackUrl @"http://27.115.115.86:9580/chinapnr/response/netSave"
+
+// 提现
+#define kSucessCashCallBackUrl @"http://27.115.115.86:9580/chinapnr/response/cash"
+
+// 投资
+#define kSuccessHFCallBackUrl @"http://27.115.115.86:9580/chinapnr/response/initiativeTender"
+
+
+/////////////////                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    // 汇付相关的URL
+//// 域名
+//#define HFAPIREFIX      @"http://testrest.lingyongdai.com"
+//
+//#define kHUIFUCALLBACKURL @"http://testrest.lingyongdai.com/u"
+//
+//#define kErrorHuiFuCallBackUrl @"http://testrest.lingyongdai.com/chinapnr/response/appError"
+//#define kSucessHuiFuCallBackUrl @"http://testrest.lingyongdai.com/chinapnr/response/appSuccess"
+//
+//
+//// 开户
+//#define kSuccessOpenAcountCallBackUrl @"http://testrest.lingyongdai.com/chinapnr/response/userRegister"
+//
+//// 充值
+//#define kSuccessRechargeCallBackUrl @"http://testrest.lingyongdai.com/chinapnr/response/netSave"
+//
+//// 提现
+//#define kSucessCashCallBackUrl @"http://testrest.lingyongdai.com/chinapnr/response/cash"
+//
+//// 投资
+//#define kSuccessHFCallBackUrl @"http://testrest.lingyongdai.com/chinapnr/response/initiativeTender"
+
+
+
+
+///////////////
+// 汇付相关的URL
+// 域名
+//#define HFAPIREFIX      @"http://testinvestrest.lingyongdai.com"
+//
+//#define kHUIFUCALLBACKURL @"http://testinvestrest.lingyongdai.com/u"
+//
+//#define kErrorHuiFuCallBackUrl @"http://testinvestrest.lingyongdai.com/chinapnr/response/appError"
+//#define kSucessHuiFuCallBackUrl @"http://testinvestrest.lingyongdai.com/chinapnr/response/appSuccess"
+//
+//
+//// 开户
+//#define kSuccessOpenAcountCallBackUrl @"http://testinvestrest.lingyongdai.com/chinapnr/response/userRegister"
+//
+//// 充值
+//#define kSuccessRechargeCallBackUrl @"http://testinvestrest.lingyongdai.com/chinapnr/response/netSave"
+//
+//// 提现
+//#define kSucessCashCallBackUrl @"http://testinvestrest.lingyongdai.com/chinapnr/response/cash"
+//
+//// 投资
+//#define kSuccessHFCallBackUrl @"http://testinvestrest.lingyongdai.com/chinapnr/response/initiativeTender"
+
+
+
+
+
+
+
+
+///////////////////
+////// 汇付相关的URL
+////// 域名
+//#define HFAPIREFIX      @"http://27.115.115.86:8090"
+//
+//#define kHUIFUCALLBACKURL @"http://27.115.115.86:8090/u"
+//
+//#define kErrorHuiFuCallBackUrl @"http://27.115.115.86:8090/chinapnr/response/Error"
+//#define kSucessHuiFuCallBackUrl @"http://27.115.115.86:8090/chinapnr/response/Success"
+//
+//
+//// 开户
+//#define kSuccessOpenAcountCallBackUrl @"http://27.115.115.86:8090/chinapnr/response/userRegister"
+//
+//// 充值
+//#define kSuccessRechargeCallBackUrl @"http://27.115.115.86:8090/chinapnr/response/netSave"
+//
+//// 提现
+//#define kSucessCashCallBackUrl @"http://27.115.115.86:8090/chinapnr/response/cash"
+//
+//// 投资
+//#define kSuccessHFCallBackUrl @"http://27.115.115.86:8090/chinapnr/response/initiativeTender"
+
+
+
+
+
+/////////////////
+//// 汇付相关的URL
+//// 域名
+//#define HFAPIREFIX      @"http://27.115.115.86:8490"
+//
+//#define kHUIFUCALLBACKURL @"http://27.115.115.86:8490/u"
+//
+//#define kErrorHuiFuCallBackUrl @"http://27.115.115.86:8490/chinapnr/response/Error"
+//#define kSucessHuiFuCallBackUrl @"http://27.115.115.86:8490/chinapnr/response/Success"
+//
+//
+//// 开户
+//#define kSuccessOpenAcountCallBackUrl @"http://27.115.115.86:8490/chinapnr/response/userRegister"
+//
+//// 充值
+//#define kSuccessRechargeCallBackUrl @"http://27.115.115.86:8490/chinapnr/response/netSave"
+//
+//// 提现
+//#define kSucessCashCallBackUrl @"http://27.115.115.86:8490/chinapnr/response/cash"
+//
+//// 投资
+//#define kSuccessHFCallBackUrl @"http://27.115.115.86:8490/chinapnr/response/initiativeTender"
+
+
+
+/////////////////
+//// 汇付相关的URL
+//王兵
+//// 域名
+//#define HFAPIREFIX      @"http://27.115.115.86:8061"
+//
+//#define kHUIFUCALLBACKURL @"http://27.115.115.86:8061/u"
+//
+//#define kErrorHuiFuCallBackUrl @"http://27.115.115.86:8061/chinapnr/response/Error"
+//#define kSucessHuiFuCallBackUrl @"http://27.115.115.86:8061/chinapnr/response/Success"
+//
+//
+//// 开户
+//#define kSuccessOpenAcountCallBackUrl @"http://27.115.115.86:8061/chinapnr/response/userRegister"
+//
+//// 充值
+//#define kSuccessRechargeCallBackUrl @"http://27.115.115.86:8061/chinapnr/response/netSave"
+//
+//// 提现
+//#define kSucessCashCallBackUrl @"http://27.115.115.86:8061/chinapnr/response/cash"
+//
+//// 投资
+//#define kSuccessHFCallBackUrl @"http://27.115.115.86:8061/chinapnr/response/initiativeTender"
+
+
+/////////////////
+//// 汇付相关的URL  正式环境
+//// 域名
+//#define HFAPIREFIX      @"https://appinvest.lingyongdai.com"
+//
+//#define kHUIFUCALLBACKURL @"https://appinvest.lingyongdai.com/u"
+//
+//#define kErrorHuiFuCallBackUrl @"https://appinvest.lingyongdai.com/chinapnr/response/Error"
+//#define kSucessHuiFuCallBackUrl @"https://appinvest.lingyongdai.com/chinapnr/response/Success"
+//
+//
+//// 开户
+//#define kSuccessOpenAcountCallBackUrl @"https://appinvest.lingyongdai.com/chinapnr/response/userRegister"
+//
+//// 充值
+//#define kSuccessRechargeCallBackUrl @"https://appinvest.lingyongdai.com/chinapnr/response/netSave"
+//
+//// 提现
+//#define kSucessCashCallBackUrl @"https://appinvest.lingyongdai.com/chinapnr/response/cash"
+//
+//// 投资
+//#define kSuccessHFCallBackUrl @"https://appinvest.lingyongdai.com/chinapnr/response/initiativeTender"
+
+
+
+
+
+
+///////////////
+// 汇付相关的URL
+// 域名
+//#define HFAPIREFIX      @"http://27.115.115.86:8085"
+//
+//#define kHUIFUCALLBACKURL @"http://27.115.115.86:8085/u"
+//
+//#define kErrorHuiFuCallBackUrl @"http://27.115.115.86:8085/chinapnr/response/Error"
+//#define kSucessHuiFuCallBackUrl @"http://27.115.115.86:8085/chinapnr/response/Success"
+//
+//
+//// 开户
+//#define kSuccessOpenAcountCallBackUrl @"http://27.115.115.86:8085/chinapnr/response/userRegister"
+//
+//// 充值
+//#define kSuccessRechargeCallBackUrl @"http://27.115.115.86:8085/chinapnr/response/netSave"
+//
+//// 提现
+//#define kSucessCashCallBackUrl @"http://27.115.115.86:8085/chinapnr/response/cash"
+//
+//// 投资
+//#define kSuccessHFCallBackUrl @"http://27.115.115.86:8085/chinapnr/response/initiativeTender"
+
+
+
+
+
+
+
+
+
+
+/////////////////
+//// 汇付相关的URL
+//// 域名
+//#define HFAPIREFIX      @"http://27.115.115.86:8060"
+//
+//#define kHUIFUCALLBACKURL @"http://27.115.115.86:8060/u"
+//
+//#define kErrorHuiFuCallBackUrl @"http://27.115.115.86:8060/chinapnr/response/Error"
+//#define kSucessHuiFuCallBackUrl @"http://27.115.115.86:8060/chinapnr/response/Success"
+//
+//
+//// 开户
+//#define kSuccessOpenAcountCallBackUrl @"http://27.115.115.86:8060/chinapnr/response/userRegister"
+//
+//// 充值
+//#define kSuccessRechargeCallBackUrl @"http://27.115.115.86:8060/chinapnr/response/netSave"
+//
+//// 提现
+//#define kSucessCashCallBackUrl @"http://27.115.115.86:8060/chinapnr/response/cash"
+//
+//// 投资
+//#define kSuccessHFCallBackUrl @"http://27.115.115.86:8060/chinapnr/response/initiativeTender"
+// 每次加载数据的条数
+#define kDSYLoadCount 10
+// 账户
+#import "DSYAccount.h"
+// 用户
+#import "DSYUser.h"
+// 写入defaults
+#define UserDefaultsWriteObj(object, key) [[NSUserDefaults standardUserDefaults] setObject:(object) forKey:(key)]
+// 读取
+#define UserDefaultsReadObj(key) [[NSUserDefaults standardUserDefaults] objectForKey:(key)]
+// 从defaults移除
+#define UserDefaultsRemoveObjForKey(a) [[NSUserDefaults standardUserDefaults] removeObjectForKey:(a)]
+// 写入磁盘
+#define UserDefaultsSynchronize [[NSUserDefaults standardUserDefaults] synchronize]
+// 自定义Log日志
+#if DEBUG
+#define NSLog(FORMAT, ...) fprintf(stderr, "[%s: %d行] %s\n",[[[NSString stringWithUTF8String:__FILE__] lastPathComponent] UTF8String], __LINE__, [[NSString stringWithFormat:FORMAT, ##__VA_ARGS__] UTF8String]);
+#else
+#define NSLog(FORMAT, ...) nil
+#endif
+
+#endif

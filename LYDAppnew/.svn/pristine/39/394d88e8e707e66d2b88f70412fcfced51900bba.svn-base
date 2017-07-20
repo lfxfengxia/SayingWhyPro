@@ -1,0 +1,108 @@
+//
+//  NewcomerInvestmentVC.m
+//  LYDApp
+//
+//  Created by lyd_Mac on 2017/6/28.
+//  Copyright © 2017年 dookay_73. All rights reserved.
+//
+
+#import "NewcomerInvestmentVC.h"
+#import "NewcomerInvestmentHeadView.h"
+#import "NewComerMainView.h"
+#import "XYExperienceConfirmController.h"
+
+@interface NewcomerInvestmentVC ()
+@property(nonatomic,strong)NewcomerInvestmentHeadView *headView;
+@property(nonatomic,strong)NewComerMainView *mainView;
+@property(nonatomic,strong)UIButton *buyBtn;
+@end
+
+@implementation NewcomerInvestmentVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.view.backgroundColor=RGB(246, 246, 245);
+    self.navigaTitle=@"使用体验金";
+    [self createUI];
+}
+
+-(NewComerMainView *)mainView
+{
+    if (!_mainView) {
+        _mainView=[[NewComerMainView alloc]init];
+    }
+    return _mainView;
+}
+-(NewcomerInvestmentHeadView *)headView
+{
+    if (!_headView) {
+        _headView=[[NewcomerInvestmentHeadView alloc]init];
+    }
+    return _headView;
+}
+
+-(void)createUI{
+    [self.view addSubview:self.headView];
+    [self.headView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.view.mas_left).mas_offset(KWidth(12));
+        make.right.equalTo(self.view.mas_right).mas_offset(-KWidth(12));
+        make.top.equalTo(self.view.mas_top).mas_offset(KHeight(10)+64);
+        make.height.mas_equalTo(KHeight(158));
+    }];
+    [self.headView getAccount:self.model];
+    [self.view addSubview:self.mainView];
+    [self.mainView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.view.mas_left);
+        make.right.equalTo(self.view.mas_right);
+        make.top.equalTo(self.headView.mas_bottom).mas_offset(KHeight(10));
+        make.height.mas_equalTo(KHeight(98));
+    }];
+    [self.mainView NewComerMainWithModel:self.model];
+    
+    self.buyBtn=[[UIButton alloc]init];
+    self.buyBtn.backgroundColor = [UIColor colorWithRed:255/255.0 green:121/255.0 blue:1/255.0 alpha:1/1.0];
+    [self.buyBtn setTitle:@"确认购买" forState:UIControlStateNormal];
+    [self.buyBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.buyBtn addTarget:self action:@selector(buyNewComerMark) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.buyBtn];
+    [self.buyBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.and.right.bottom.equalTo(self.view);
+        make.height.mas_equalTo(KHeight(49));
+    }];
+    
+}
+
+-(void)buyNewComerMark{
+    if ([DSYAccount sharedDSYAccount].ipsAccount.length <= 0) {
+        [DSYUtils showResponseError_404_ForViewController:self message:@"用户未开户，请进行开户" okHandler:^(UIAlertAction *action) {
+            DSYOpenAccountController *oppenAccountVC = [[DSYOpenAccountController alloc] initWithType:DSYOpenAccountControllerFromTypeNone];
+            oppenAccountVC.hidesBottomBarWhenPushed = YES;
+            [self.navigationController pushViewController:oppenAccountVC animated:YES];
+        } cancelHandler:^(UIAlertAction *action) {
+        }];
+    } else {
+        
+        XYExperienceConfirmController *confirmVC = [[XYExperienceConfirmController alloc] init];
+        confirmVC.model = self.model;
+        //    confirmVC.coupon = self.coupon;
+        [self.navigationController pushViewController:confirmVC animated:YES];
+    }
+
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

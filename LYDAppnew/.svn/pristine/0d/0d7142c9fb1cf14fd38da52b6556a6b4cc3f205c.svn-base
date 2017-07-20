@@ -1,0 +1,53 @@
+//
+//  DSYAccount.h
+//  LYDApp
+//
+//  Created by dai yi on 2016/12/1.
+//  Copyright © 2016年 dookay_73. All rights reserved.
+//
+
+#import "DSYBaseModel.h"
+
+typedef void(^DSYAccountCompleteBlock)(void);
+
+@interface DSYAccount : DSYBaseModel
+@property (nonatomic,   copy) NSString *mobile;            /**< 手机号码 */
+@property (nonatomic,   copy) NSString *nickName;          /**< 昵称 */
+@property (nonatomic,   copy) NSString *realName;          /**< 真实姓名 */
+@property (nonatomic,   copy) NSString *idNumber;          /**< id */
+@property (nonatomic,   copy) NSString *email;             /**< 邮箱 */
+@property (nonatomic,   copy) NSString *avatar;            /**< 头像 */
+@property (nonatomic,   copy) NSString *ipsAccount;        /**< 汇付的认证账号 */
+
+@property (nonatomic, assign) CGFloat balance;             /**< 剩余余额 */
+@property (nonatomic, assign) CGFloat availableBalance;    /**< 可用余额 */
+@property (nonatomic, assign) CGFloat totalCorpus;         /**< 预收本金 */
+@property (nonatomic, assign) CGFloat totalInterest;       /**< 预估利息 */
+@property (nonatomic, assign) CGFloat totalAsset;          /**< 总资产 */
+@property (nonatomic, assign) CGFloat freeze;          /**< 冻结资金 */
+@property (nonatomic, assign) NSInteger couponCount;       /**< 优惠券张数 */
+@property (nonatomic, assign) NSInteger unbindCouponCount;       /**< 优惠券未绑定数量 */
+
+@property (nonatomic, assign) NSInteger canInvestNew;      /**< 是否使用新体验标 */
+@property (nonatomic, assign) NSInteger canInvestPlanNew;  /**< 是否投了新手专享标 */
+
+
+@property (nonatomic, assign) BOOL canComment;             /**< 是否可评论 */
+
+@property (nonatomic, assign) NSInteger loginCount;
+
+
+@property (nonatomic, assign, getter=isRefresh) BOOL refresh;   /**< 是否更新 */
+@property (nonatomic, assign) double newInterest;  /**< 新手标预期利息 */
+@property (nonatomic, assign) double planInterest;  /**< 份数标预期利息 */
+@property (nonatomic, assign) double companyInterest;  /**< 零定宝预期利息 */
+
+
+- (void)updateMyAccountForViewController:(UIViewController *)viewcontroller complete:(DSYAccountCompleteBlock)completeBlock;
+
+- (void)updateMyAccountWithComplete:(DSYAccountCompleteBlock)completeBlock;
+
+- (void)clean;
+singleton_interface(DSYAccount);
+
+@end

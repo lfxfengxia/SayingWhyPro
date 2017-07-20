@@ -1,0 +1,250 @@
+//
+//  PictureViewCtr.m
+//  弹出动画
+//
+//  Created by J1CN on 16/5/16.
+//  Copyright © 2016年 J1CN. All rights reserved.
+//
+
+#import "PictureViewCtr.h"
+//#import "Const.h"
+
+#define screenW self.view.frame.size.width
+#define screenH self.view.frame.size.height
+
+@interface PictureViewCtr ()
+{
+    CGFloat _font;
+}
+
+@property (nonatomic, copy) PictureBlock pictureBlock;
+@property (nonatomic, copy) NSString *imageName;
+@property (nonatomic, copy) NSString *btnName;
+@property(nonatomic,assign)NSString  *amount;//邀请好友，奖励金额
+
+@end
+
+@implementation PictureViewCtr
+
+
+- (instancetype)initWithImageName:(NSString *)imageName ButtonName:(NSString *)btnName  Amount:(NSString  *)amount  JumpBlock:(PictureBlock)pictureBlock
+{
+    self = [super init];
+    if (self) {
+        
+        _pictureBlock = pictureBlock;
+        _imageName = imageName;
+        _btnName = btnName;
+        _amount=amount;
+    }
+    return self;
+}
+
+- (void)viewDidLoad {
+
+//    self.view.backgroundColor = [UIColor cyanColor];
+    if (HEIGHT==736)
+    {
+        _font=15;
+    }
+    else
+    {
+        _font=myFontSize;
+    }
+    
+    
+    if ([_imageName isEqualToString:@"HuoDongconfigUI1"]) {
+        [self configUI1];
+    }
+    else {
+        [self configUI];
+    }
+
+    
+    
+}
+
+- (void)configUI {
+
+    UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, WIDTH, HEIGHT)];
+    view.backgroundColor = [UIColor blackColor];
+    view.alpha  = 0.5;
+    [self.view addSubview:view];
+    
+    /**
+     *  图片
+     */
+    UIImageView *pictureView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:_imageName]];
+    pictureView.frame = CGRectMake((WIDTH-280*hx)/2, 180*hx, 280*hx, 200*hx);
+    
+    
+    
+    
+    if ([_imageName isEqualToString:@"邀请优惠券弹窗"]) {
+        UILabel  *lblamount=[[UILabel alloc] initWithFrame:CGRectMake(0, 110, 280*hx, 30)];
+        lblamount.textColor=[UIColor colorWithRed:255/255.0 green:97/255.0 blue:24/255.0 alpha:1];
+        // lblamount.text=[NSString stringWithFormat:@"￥%@",_amount];
+        lblamount.textAlignment=NSTextAlignmentCenter;
+        lblamount.font=[UIFont systemFontOfSize:40];
+        NSMutableAttributedString *str1=[[NSMutableAttributedString alloc]initWithString:[NSString stringWithFormat:@"￥%@",_amount]];
+        [str1 addAttribute:NSFontAttributeName value:[UIFont fontWithName:@"HelveticaNeue" size:18] range:NSMakeRange(0, 1)];
+        //_label1_1.font = [UIFont systemFontOfSize:_font+57];
+        lblamount.attributedText = str1;
+        [pictureView addSubview:lblamount];
+        
+        
+        
+        UILabel  *lblyaoqinghaoyou=[[UILabel alloc] initWithFrame:CGRectMake(0, 155, 280*hx, 20)];
+        lblyaoqinghaoyou.textColor=[UIColor colorWithRed:255/255.0 green:97/255.0 blue:24/255.0 alpha:1];
+        lblyaoqinghaoyou.text=@"- 邀请好友 -";
+        lblyaoqinghaoyou.textAlignment=NSTextAlignmentCenter;
+        lblyaoqinghaoyou.font=[UIFont systemFontOfSize:15];
+        [pictureView addSubview:lblyaoqinghaoyou];
+        
+        UILabel  *lblyaoqinghaoyou1=[[UILabel alloc] initWithFrame:CGRectMake(0, 175, 280*hx, 30)];
+        lblyaoqinghaoyou1.textColor=[UIColor colorWithRed:255/255.0 green:97/255.0 blue:24/255.0 alpha:1];
+        lblyaoqinghaoyou1.text=[NSString stringWithFormat:@"各得%@元优惠券",_amount];
+        lblyaoqinghaoyou1.textAlignment=NSTextAlignmentCenter;
+        lblyaoqinghaoyou1.font=[UIFont systemFontOfSize:13];
+        [pictureView addSubview:lblyaoqinghaoyou1];
+        
+
+    }
+    
+//  pictureView.layer.backgroundColor = [UIColor orangeColor].CGColor;
+    [self.view addSubview:pictureView];
+    
+    /**
+     *  关闭btn
+     */
+    UIButton *close = [UIButton buttonWithType:UIButtonTypeCustom];
+    close.frame = CGRectMake(CGRectGetMaxX(pictureView.frame)-60*hx, CGRectGetMinY(pictureView.frame)+20*hx, 23*hx, 23*hx);
+//    close.backgroundColor = [UIColor redColor];
+    [close setImage:[UIImage imageNamed:@"cha"] forState:UIControlStateNormal];
+    [close addTarget:self action:@selector(close) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:close];
+    
+    /**
+     *  立即投资
+     */
+    UIButton *jump = [UIButton buttonWithType:UIButtonTypeCustom];
+    jump.frame = CGRectMake((WIDTH - 100*hx)/2, CGRectGetMaxY(pictureView.frame)+10*hy, 100*hx, 25*hy);
+    jump.backgroundColor = [UIColor orangeColor];
+    jump.userInteractionEnabled = YES;
+
+    
+    if ([_btnName isEqualToString:@"btnshengdan"]) {
+       [jump setImage:[UIImage imageNamed:@"btnshengdan"] forState:UIControlStateNormal];
+        jump.backgroundColor = [UIColor clearColor];
+         [jump addTarget:self action:@selector(jump) forControlEvents:UIControlEventTouchUpInside];
+    }
+    else
+    {
+    [jump setTitle:_btnName forState:UIControlStateNormal];
+     [jump addTarget:self action:@selector(jump) forControlEvents:UIControlEventTouchUpInside];
+    
+    }
+    
+    [jump setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    jump.titleLabel.font = [UIFont systemFontOfSize:_font+2];
+   
+    [self.view addSubview:jump];
+    
+}
+
+
+
+- (void)configUI1
+{
+    
+    UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, WIDTH, HEIGHT)];
+    view.backgroundColor = [UIColor blackColor];
+    view.alpha  = 0.5;
+    [self.view addSubview:view];
+    
+    /**
+     *  图片
+     */
+    UIImageView *pictureView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:_imageName]];
+    pictureView.frame = CGRectMake((WIDTH-280*hx)/2, 180*hx, 280*hx, 200*hx);
+    
+    
+    
+    UILabel *lblamount=[[UILabel alloc] initWithFrame:CGRectMake(0, 80*hx, 280*hx, 15*hx)];
+    lblamount.textAlignment=NSTextAlignmentCenter;
+    lblamount.text=[NSString stringWithFormat:@"%@",_amount];
+    lblamount.textColor=[UIColor yellowColor];
+    [pictureView  addSubview:lblamount];
+    
+    
+    
+    
+    
+    
+    
+    //    pictureView.layer.backgroundColor = [UIColor orangeColor].CGColor;
+    [self.view addSubview:pictureView];
+    
+    /**
+     *  关闭btn
+     */
+    UIButton *close = [UIButton buttonWithType:UIButtonTypeCustom];
+    close.frame = CGRectMake(CGRectGetMaxX(pictureView.frame)-60*hx, CGRectGetMinY(pictureView.frame)+20*hx, 23*hx, 23*hx);
+    //    close.backgroundColor = [UIColor redColor];
+    [close setImage:[UIImage imageNamed:@"cha"] forState:UIControlStateNormal];
+    [close addTarget:self action:@selector(close) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:close];
+    
+    /**
+     *  立即投资
+     */
+    UIButton *jump = [UIButton buttonWithType:UIButtonTypeCustom];
+    jump.frame = CGRectMake((WIDTH - 100*hx)/2, CGRectGetMaxY(pictureView.frame)+10*hy, 100*hx, 25*hy);
+    jump.backgroundColor = [UIColor orangeColor];
+    jump.userInteractionEnabled = YES;
+    
+    
+    if ([_btnName isEqualToString:@"HuoDongconSurefigUI1"]) {
+        [jump setImage:[UIImage imageNamed:@"HuoDongconSurefigUI1"] forState:UIControlStateNormal];
+        jump.backgroundColor = [UIColor clearColor];
+        [jump addTarget:self action:@selector(jump) forControlEvents:UIControlEventTouchUpInside];
+    }
+    else
+    {
+        [jump setTitle:_btnName forState:UIControlStateNormal];
+        [jump addTarget:self action:@selector(jump) forControlEvents:UIControlEventTouchUpInside];
+        
+    }
+    
+    [jump setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    jump.titleLabel.font = [UIFont systemFontOfSize:_font+2];
+    
+    [self.view addSubview:jump];
+    
+}
+
+
+
+- (void)jump {
+    
+    [self dismissViewControllerAnimated:NO completion:^{
+       
+        if (_pictureBlock != nil) {
+            _pictureBlock();
+        }
+        
+    }];
+    
+}
+
+- (void)close {
+    
+    [self dismissViewControllerAnimated:NO completion:nil];
+}
+
+//- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+//    
+//    [self dismissViewControllerAnimated:NO completion:nil];
+//}
+
+@end

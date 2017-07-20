@@ -1,0 +1,178 @@
+//
+//  WenTiCell.m
+//  LYDApp
+//
+//  Created by fcl on 2017/6/22.
+//  Copyright © 2017年 dookay_73. All rights reserved.
+//
+
+#import "WenTiCell.h"
+@interface WenTiCell ()
+
+
+
+@property (nonatomic, strong) UILabel   *replayContentLabel;
+@property (nonatomic, strong) UILabel   *titleLabel;
+
+@end
+@implementation WenTiCell
+
++ (instancetype)cellWithTableView:(UITableView *)tableView
+{
+    static NSString *ID = @"WenTiCell";
+    WenTiCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+    if (!cell) {
+        cell = [[WenTiCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
+        cell.backgroundColor = [UIColor whiteColor];
+        [cell createUI];
+        
+    }
+    return cell;
+}
+
+- (void)createUI
+{
+    self.titleLabel = [[UILabel alloc] init];
+    self.titleLabel.font = [UIFont fontWithName:@".PingFangSC-Medium" size:14];
+    self.titleLabel.textColor = [UIColor colorWithRed:255/255.0 green:121/255.0 blue:1/255.0 alpha:1/1.0];
+    self.titleLabel.frame=CGRectMake(KWidth(10), KHeight(10), kSCREENW - KWidth(10) * 2, KHeight(44));
+    [self.contentView addSubview:self.titleLabel];
+    
+    UIView *fengeline = [[UIView alloc] init];
+    fengeline.frame = CGRectMake(0, self.titleLabel.maxY-1, kSCREENW, 1);
+    fengeline.backgroundColor = [UIColor colorWithRed:245/255.0 green:245/255.0 blue:245/255.0 alpha:1/1.0];
+    [self.contentView addSubview:fengeline];
+    self.replayContentLabel = [[UILabel alloc] init];
+    self.replayContentLabel.font = [UIFont fontWithName:@"PingFangSC-Medium" size:13.5];
+    self.replayContentLabel.textColor = [UIColor colorWithRed:202/255.0 green:191/255.0 blue:187/255.0 alpha:1/1.0];
+    self.replayContentLabel.numberOfLines = 0;
+    
+    [self.contentView addSubview:self.replayContentLabel];
+}
+
+
+
+
+-(UIColor *) colorWithHexString: (NSString *)color
+{
+    NSString *cString = [[color stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] uppercaseString];
+    
+    // String should be 6 or 8 characters
+    if ([cString length] < 6) {
+        return [UIColor clearColor];
+    }
+    
+    // strip 0X if it appears
+    if ([cString hasPrefix:@"0X"])
+        cString = [cString substringFromIndex:2];
+    if ([cString hasPrefix:@"#"])
+        cString = [cString substringFromIndex:1];
+    if ([cString length] != 6)
+        return [UIColor clearColor];
+    
+    // Separate into r, g, b substrings
+    NSRange range;
+    range.location = 0;
+    range.length = 2;
+    
+    //r
+    NSString *rString = [cString substringWithRange:range];
+    
+    //g
+    range.location = 2;
+    NSString *gString = [cString substringWithRange:range];
+    
+    //b
+    range.location = 4;
+    NSString *bString = [cString substringWithRange:range];
+    
+    // Scan values
+    unsigned int r, g, b;
+    [[NSScanner scannerWithString:rString] scanHexInt:&r];
+    [[NSScanner scannerWithString:gString] scanHexInt:&g];
+    [[NSScanner scannerWithString:bString] scanHexInt:&b];
+    
+    return [UIColor colorWithRed:((float) r / 255.0f) green:((float) g / 255.0f) blue:((float) b / 255.0f) alpha:1.0f];
+}
+
+
+
+
+
+- (void)setModel:(WenTiModel *)model
+{
+    _model = model;
+    
+    
+    self.titleLabel.text=model.title;
+    
+    
+    
+    //1.将字符串转化为标准HTML字符串
+    NSString  *str1 = [self htmlEntityDecode:model.content];
+    //2.将HTML字符串转换为attributeString
+    NSMutableAttributedString * attributeStr = [self attributedStringWithHTMLString:str1];
+    NSString  *result = [attributeStr.string stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    CGFloat commentH1 = [Helper heightOfString:result font:[UIFont systemFontOfSize:13.5] width:kSCREENW - KWidth(10) * 2];
+    self.replayContentLabel.attributedText = attributeStr;
+    self.replayContentLabel.frame = CGRectMake(KWidth(10), self.titleLabel.maxY+KHeight(1), kSCREENW - KWidth(10) * 2, commentH1);
+    self.model.cellHeight = self.replayContentLabel.maxY + KHeight(1);
+    
+   
+}
+
+
+//将 &lt 等类似的字符转化为HTML中的“<”等
+- (NSString *)htmlEntityDecode:(NSString *)string
+{
+    string = [string stringByReplacingOccurrencesOfString:@"&quot;" withString:@"\""];
+    string = [string stringByReplacingOccurrencesOfString:@"&apos;" withString:@"'"];
+    string = [string stringByReplacingOccurrencesOfString:@"&lt;" withString:@"<"];
+    string = [string stringByReplacingOccurrencesOfString:@"&gt;" withString:@">"];
+    string = [string stringByReplacingOccurrencesOfString:@"&amp;" withString:@"&"]; // Do this last so that, e.g. @"&amp;lt;" goes to @"&lt;" not @"<"
+    string = [string stringByReplacingOccurrencesOfString:@"16px" withString:@"12px"];
+    return string;
+}
+
+
+//将HTML字符串转化为NSAttributedString富文本字符串
+- (NSMutableAttributedString *)attributedStringWithHTMLString:(NSString *)htmlString
+{
+    NSDictionary *options = @{ NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
+                               NSCharacterEncodingDocumentAttribute :@(NSUTF8StringEncoding) };
+    
+    NSData *data = [htmlString dataUsingEncoding:NSUTF8StringEncoding];
+    
+    return [[NSMutableAttributedString alloc] initWithData:data options:options documentAttributes:nil error:nil];
+}
+
+//去掉 HTML 字符串中的标签
+- (NSString *)filterHTML:(NSString *)html
+{
+    NSScanner * scanner = [NSScanner scannerWithString:html];
+    NSString * text = nil;
+    while([scanner isAtEnd]==NO)
+    {
+        //找到标签的起始位置
+        [scanner scanUpToString:@"<" intoString:nil];
+        //找到标签的结束位置
+        [scanner scanUpToString:@">" intoString:&text];
+        //替换字符
+        html = [html stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"%@>",text] withString:@""];
+    }
+    //    NSString * regEx = @"<([^>]*)>";
+    //    html = [html stringByReplacingOccurrencesOfString:regEx withString:@""];
+    return html;
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+    
+    // Configure the view for the selected state
+}
+@end

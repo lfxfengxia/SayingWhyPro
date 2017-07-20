@@ -1,0 +1,75 @@
+//
+//  NewComerMainView.m
+//  LYDApp
+//
+//  Created by lyd_Mac on 2017/6/28.
+//  Copyright © 2017年 dookay_73. All rights reserved.
+//
+
+#import "NewComerMainView.h"
+
+@implementation NewComerMainView
+
+-(instancetype)initWithFrame:(CGRect)frame
+{
+    self=[super initWithFrame:frame];
+    if (self) {
+        
+        self.backgroundColor=[UIColor whiteColor];
+        
+        UILabel *label1=[[UILabel alloc]init];
+        label1.text=@"投资金额";
+        label1.textColor=RGB(134, 134, 134);
+        label1.font=[UIFont systemFontOfSize:KHeight(12)];
+        [self addSubview:label1];
+        [label1 mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.mas_left).mas_offset(KWidth(12));
+            make.top.equalTo(self.mas_top).mas_offset(KHeight(28));
+            make.size.mas_equalTo(CGSizeMake(KWidth(50), KHeight(14)));
+        }];
+        self.earnings.textColor=RGB(34, 34, 34);
+        self.earnings=[[UILabel alloc]init];
+        self.earnings.text=@"";
+        
+        self.earnings.font=[UIFont systemFontOfSize:KHeight(17)];
+        [self addSubview:self.earnings];
+        [self.earnings mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(label1.mas_right).mas_offset(KWidth(20));
+            make.top.equalTo(self.mas_top).mas_offset(25);
+            make.height.mas_equalTo(KHeight(17));
+        }];
+        
+        UILabel *label2=[[UILabel alloc]init];
+        label2.text=@"预期收益";
+        label2.textColor=RGB(134, 134, 134);
+        label2.font=[UIFont systemFontOfSize:KHeight(12)];
+        [self addSubview:label2];
+        [label2 mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(self.mas_left).mas_offset(KWidth(12));
+            make.top.equalTo(label1.mas_bottom).mas_offset(KHeight(30));
+            make.size.mas_equalTo(CGSizeMake(KWidth(50), KHeight(17)));
+        }];
+        
+        self.total=[[UILabel alloc]init];
+        self.total.textColor=RGB(240, 89, 78);
+        self.total.font=[UIFont systemFontOfSize:KHeight(17)];
+        
+        [self addSubview:self.total];
+        [self.total mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(label2.mas_right).mas_offset(KWidth(20));
+            make.top.equalTo(label1.mas_bottom).mas_offset(KHeight(28));
+            make.height.mas_equalTo(KHeight(17));
+        }];
+
+        
+    }
+    return self;
+}
+
+-(void)NewComerMainWithModel:(XYSanBidModel *)model
+{
+    self.total.text=[NSString stringWithFormat:@"¥5.00"];
+    self.earnings.text=[NSString stringWithFormat:@"¥%0.2f元",[model.minAmount floatValue]];
+}
+
+@end

@@ -1,0 +1,624 @@
+//
+//  AppDelegate.m
+//  LYDApp
+//
+//  Created by dookay_73 on 16/10/31.
+//  Copyright © 2016年 dookay_73. All rights reserved.
+//
+
+#import "AppDelegate.h"
+#import <UMSocialCore/UMSocialCore.h>
+#import "WelcomeViewController.h"
+#import "UMessage.h"
+#import <UserNotifications/UserNotifications.h>
+#import "MBProgressHUD.h"
+#import "UMMobClick/MobClick.h"
+
+
+
+@interface AppDelegate ()<UNUserNotificationCenterDelegate,UIAlertViewDelegate>
+{
+ BOOL isApplicationFinish;
+}
+@end
+
+@implementation AppDelegate
+
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+   
+    UMConfigInstance.appKey = @"569f392767e58e89f6002890";
+    UMConfigInstance.ChannelId = @"App Store";
+    UMConfigInstance.eSType = E_UM_GAME; //仅适用于游戏场景，应用统计不用设置
+    [MobClick startWithConfigure:UMConfigInstance];//配置以上参数后调用此方法初始化SDK！
+
+    
+    [[NSUserDefaults standardUserDefaults] setValue:@"0" forKey:@"TuiSongState"];//初始化为0//杀死状态为0表示不是推送过来的消息，为1表示是推送过来的消息 在首页加载完后会根据这个状态来加载推送页面
+
+    [UMessage startWithAppkey:@"569f392767e58e89f6002890" launchOptions:launchOptions httpsenable:YES ];
+    //初始化方法,也可以使用(void)startWithAppkey:(NSString *)appKey launchOptions:(NSDictionary * )launchOptions httpsenable:(BOOL)value;这个方法，方便设置https请求。
+    [UMessage startWithAppkey:@"569f392767e58e89f6002890" launchOptions:launchOptions];
+    //注册通知，如果要使用category的自定义策略，可以参考demo中的代码。
+    [UMessage registerForRemoteNotifications];
+    
+    //iOS10必须加下面这段代码。
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    center.delegate=self;
+    UNAuthorizationOptions types10=UNAuthorizationOptionBadge|  UNAuthorizationOptionAlert|UNAuthorizationOptionSound;
+    [center requestAuthorizationWithOptions:types10     completionHandler:^(BOOL granted, NSError * _Nullable error) {
+        if (granted) {
+            //点击允许
+            //这里可以添加一些自己的逻辑
+        } else {
+            //点击不允许
+            //这里可以添加一些自己的逻辑
+        }
+    }];
+    //打开日志，方便调试
+    [UMessage setLogEnabled:NO];
+    
+    
+    
+    
+    self.window = [[UIWindow alloc]initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window.backgroundColor = [UIColor whiteColor];
+    [self.window makeKeyAndVisible];
+
+    
+    [[UINavigationBar appearance] setBarTintColor:BgColor];
+    [[UINavigationBar appearance] setTintColor:[UIColor blackColor]];
+    [[UINavigationBar appearance] setTitleTextAttributes:@{ NSForegroundColorAttributeName:[UIColor blackColor]}];
+    [[UIBarButtonItem appearance] setBackButtonTitlePositionAdjustment:UIOffsetMake(0, -60)
+                                                         forBarMetrics:UIBarMetricsDefault];
+
+    [[DSYUser sharedDSYUser] loadUserUserFromSanbox];
+    
+    [self createWelcomeUI];
+   // self.window.rootViewController = [[XYMainTabBarController alloc] init];
+    
+  [self setupMyUmSocial];
+    
+    
+     [[UITabBarItem appearance] setTitleTextAttributes:@{NSForegroundColorAttributeName:ORANGECOLOR} forState:UIControlStateSelected];
+    
+    
+    
+    NSDictionary *userInfo=launchOptions[@"UIApplicationLaunchOptionsRemoteNotificationKey"];
+//    _value=userInfo;
+    if(userInfo)
+    {
+        self.userInfo = userInfo;
+
+         NSArray *array = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        
+        NSString *documents = [array lastObject];
+        
+        NSString *documnetPath = [documents stringByAppendingPathComponent:@"dic.plist"];
+        
+        //准备要存入的字典
+        
+       // NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:@"Kevin",@"name",@"男",@"gender",nil
+                             
+                             
+//                             
+//                             ];
+        
+        //将字典存入指定的本地文件
+        
+        [userInfo writeToFile:documnetPath atomically:YES];
+        
+        //可对已经存储的字典操作
+        
+        NSDictionary *resultDic = [NSDictionary dictionaryWithContentsOfFile:documnetPath];
+        
+        NSLog(@"%@", documnetPath);
+
+        
+        
+
+        [[NSUserDefaults standardUserDefaults] setValue:@"1" forKey:@"TuiSongState"];
+        
+        
+        
+
+
+
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    return YES;
+}
+
+
+
+
+
+- (BOOL)dx_isNullOrNilWithObject:(id)object;
+{
+    if (object == nil || [object isEqual:[NSNull null]]) {
+        return YES;
+    } else if ([object isKindOfClass:[NSString class]]) {
+        if ([object isEqualToString:@""]) {
+            return YES;
+        } else {
+            return NO;
+        }
+    } else if ([object isKindOfClass:[NSNumber class]]) {
+        if ([object isEqualToNumber:@0]) {
+            return YES;
+        } else {
+            return NO;
+        }
+    }
+    
+    return NO;
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (alertView.tag==100) {
+        if (buttonIndex==0) {
+            
+        }
+        else if (buttonIndex==1)
+        {
+        
+         [[NSNotificationCenter defaultCenter] postNotificationName:@"MsgYuiSong" object:_userInfo];
+        }
+    }
+
+
+
+}
+
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+    // 1.2.7版本开始不需要用户再手动注册devicetoken，SDK会自动注册
+    [UMessage registerDeviceToken:deviceToken];
+    
+     NSString *token = [deviceToken description];
+    
+    
+    NSString *strDeviceToken=[[[[deviceToken description] stringByReplacingOccurrencesOfString: @"<" withString: @""]                  stringByReplacingOccurrencesOfString: @">" withString: @""]                 stringByReplacingOccurrencesOfString: @" " withString: @""];
+    
+    [[NSUserDefaults standardUserDefaults] setValue:strDeviceToken forKey:@"strDeviceToken"];
+   // - (nullable NSString *)stringForKey:(NSString *)defaultName;
+   NSString *tt=[[NSUserDefaults standardUserDefaults] stringForKey:@"strDeviceToken"];
+    if ([TOKEN length]>0) {
+        [self  senddeviceToken:tt];
+    }
+    
+    NSLog(@"%@",[[[[deviceToken description] stringByReplacingOccurrencesOfString: @"<" withString: @""]                  stringByReplacingOccurrencesOfString: @">" withString: @""]                 stringByReplacingOccurrencesOfString: @" " withString: @""]);
+    
+    
+    
+    
+    
+    
+   
+}
+
+
+
+
+//发送deviceToken
+//-(void)senddeviceToken:(NSString *)deviceToken
+//{
+//    NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
+//    NSString *app_Version = [infoDictionary objectForKey:@"CFBundleShortVersionString"];//app当前版本号
+//    NSString *timestamp = [LYDTool createTimeStamp];
+//    
+//    NSDictionary *secretDict = @{@"appKey":APPKEY, @"timestamp":timestamp, @"deviceId":DEVICEID, @"token":TOKEN, @"device_token":deviceToken};
+//    // 生成签名认证
+//    NSString *sign = [LYDTool createMD5SignWithDictionary:secretDict];
+//    NSDictionary *para = @{@"appKey":APPKEY, @"timestamp":timestamp, @"deviceId":DEVICEID, @"token":TOKEN, @"device_token":deviceToken,@"sign":sign};
+//    
+//    // 开始请求数据
+//    [LYDTool sendGetWithUrl:[NSString stringWithFormat:@"%@/activity/setDeviceTokenByIos", APIPREFIX] parameters:para success:^(id data) {
+//        ///[MBProgressHUD hideHUDForView:self.view animated:YES];
+//        
+//        id backData = LYDJSONSerialization(data);
+////        //imposedUpdate/*状态:0最新版本，1强制，2非强制*/
+////        NSInteger imposedUpdate=[backData[@"imposedUpdate"] integerValue];
+////        NSString *msg=backData[@"updateContent"];
+////        if (imposedUpdate==1) {
+////            NSInteger t=[toolsimple  sharedPersonalData].isalert;
+////            if ([toolsimple  sharedPersonalData].isalert==0) {
+////                [toolsimple  sharedPersonalData].isalert=1;
+////                UIAlertView *alert=[[UIAlertView alloc] initWithTitle:@"提示" message:msg delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"更新", nil];
+////                alert.tag=1;
+////                [alert show];
+////            }
+////            
+////            
+////        }else if (imposedUpdate==2)
+////        {
+////            
+////            UIAlertView *alert=[[UIAlertView alloc] initWithTitle:@"提示" message:msg delegate:self cancelButtonTitle:@"更新" otherButtonTitles:nil];
+////            alert.tag=2;
+////            [alert show];
+////            
+////            
+////            
+////        }
+//        
+//        
+//        
+//    } fail:^(NSError *error, AFHTTPRequestOperation *operation) {
+// //       [MBProgressHUD hideHUDForView:self.view animated:YES];
+//        NSInteger errorData = operation.response.statusCode;
+//        
+//        NSLog(@"%zi",operation.response.statusCode);
+//        
+//        if (errorData == 401) {
+//            // 401错误处理
+//            [DSYUtils showResponseError_401_ForViewController:self];
+//        } else if (errorData == 404) {
+//            [DSYUtils showResponseError_404_ForViewController:self message:@"未找到该用户，是否登陆" okHandler:^(UIAlertAction *action) {
+//                [self pushToLoginController];
+//                
+//            } cancelHandler:^(UIAlertAction *action) {
+//            }];
+//        } else {
+//            [MBProgressHUD hideHUDForView:self.view animated:YES];
+//            XYErrorHud *errorHud = [[XYErrorHud alloc] initWithTitle:@"网络繁忙" andDoneBtnTitle:nil andDoneBtnHidden:YES];
+//            [self.view.window addSubview:errorHud];
+//        }
+//    }];
+//}
+
+
+
+
+
+//发送deviceToken
+-(void)senddeviceToken:(NSString *)deviceToken
+{
+        NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
+        NSString *app_Version = [infoDictionary objectForKey:@"CFBundleShortVersionString"];//app当前版本号
+        NSString *timestamp = [LYDTool createTimeStamp];
+    
+        NSDictionary *secretDict = @{@"appKey":APPKEY, @"timestamp":timestamp, @"deviceId":DEVICEID, @"token":TOKEN, @"device_token":deviceToken};
+        // 生成签名认证
+        NSString *sign = [LYDTool createMD5SignWithDictionary:secretDict];
+        NSDictionary *para = @{@"appKey":APPKEY, @"timestamp":timestamp, @"deviceId":DEVICEID, @"token":TOKEN, @"device_token":deviceToken,@"sign":sign};
+    
+    [LYDTool sendGetWithUrl:[NSString stringWithFormat:@"%@/activity/setDeviceTokenByIos", APIPREFIX] parameters:para success:^(id data) {
+//        [self.planTableView.header endRefreshing];
+//        [self.planTableView.footer endRefreshing];
+        //[MBProgressHUD hideHUDForView:self.view];
+        
+        id backData = LYDJSONSerialization(data);
+        //bidType   1零定宝
+        NSLog(@"%@",backData);
+        
+//        if ([[backData valueForKey:@"code"] integerValue] == 200) {
+//            if (self.planPageNum == 1) {
+//                [self.plansArr removeAllObjects];
+//            }
+//            if ([[backData valueForKey:@"planList"] count] == 0) {
+//                [self.planTableView.footer noticeNoMoreData];
+//                [self.planTableView.header endRefreshing];
+//            } else {
+//                for (NSDictionary *dict in [backData valueForKey:@"planList"]) {
+//                    XYPlanModel *model = [[XYPlanModel alloc] init];
+//                    [model setValuesForKeysWithDictionary:dict];
+//                    [self.plansArr addObject:model];
+//                }
+//                
+//                if (self.plansArr.count < 10) {
+//                    [self.planTableView.footer noticeNoMoreData];
+//                }
+//                [self.planTableView reloadData];
+//            }
+//            
+//        } else if ([[backData valueForKey:@"code"] integerValue] == 600) {
+//            [DSYUtils showSuccessForStatus_600_ForViewController:self];
+//        } else {
+//            XYErrorHud *errorHud = [[XYErrorHud alloc] initWithTitle:[backData valueForKey:@"message"] andDoneBtnTitle:nil andDoneBtnHidden:YES];
+//            [self.view.window addSubview:errorHud];
+//            
+//        }
+        
+    } fail:^(NSError *error, AFHTTPRequestOperation *operation) {
+       // [self errorDataHandleWithOperation:operation];
+    }];
+    
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+//#pragma mark 以下的方法仅作调试使用
+//-(NSString *)stringDevicetoken:(NSData *)deviceToken
+//{
+//    NSString *token = [deviceToken description];
+//    NSString *pushToken = [[[token stringByReplacingOccurrencesOfString:@"<"withString:@""]                   stringByReplacingOccurrencesOfString:@">"withString:@""] stringByReplacingOccurrencesOfString:@" "withString:@""];
+//    return pushToken;
+//}
+
+//iOS10以下使用这个方法接收通知  前台后台
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
+{
+    [UMessage setAutoAlert:NO];
+    [UMessage didReceiveRemoteNotification:userInfo];
+    
+        self.userInfo = userInfo;
+        //定制自定的的弹出框
+    
+    
+    
+
+//        if([UIApplication sharedApplication].applicationState == UIApplicationStateActive)
+//        {
+//            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"标题"
+//                                                                message:@"Test On ApplicationStateActive"
+//                                                               delegate:self
+//                                                      cancelButtonTitle:@"取消"
+//                                                      otherButtonTitles:@"查看",nil];
+//            alertView.tag=100;
+//            [alertView show];
+//    
+//        }
+//    else
+//    {
+//    
+//    
+//       [[NSNotificationCenter defaultCenter] postNotificationName:@"MsgYuiSong" object:_userInfo];
+//    }
+//    NSDictionary  *dic=[self dictionaryWithJsonString:userInfo[@"aps"][@"alert"]];
+//   
+//    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:dic[@"title"]
+//                                                        message:dic[@"body"]
+//                                                       delegate:self
+//                                              cancelButtonTitle:@"确定"
+//                                              otherButtonTitles:@"查看",nil];
+//    alertView.tag=100;
+//    [alertView show];
+    
+     [[NSNotificationCenter defaultCenter] postNotificationName:@"MsgYuiSong" object:_userInfo];
+    
+}
+
+//iOS10新增：处理前台收到通知的代理方法
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler{
+    NSDictionary * userInfo = notification.request.content.userInfo;
+    self.userInfo = userInfo;
+    if([notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]]) {
+        
+       // NSDictionary  *dic=[self dictionaryWithJsonString:userInfo[@"aps"][@"alert"]];
+        
+        
+       
+        //应用处于前台时的远程推送接受
+        //关闭U-Push自带的弹出框
+        [UMessage setAutoAlert:NO];
+        //必须加这句代码
+        [UMessage didReceiveRemoteNotification:userInfo];
+
+         [[NSNotificationCenter defaultCenter] postNotificationName:@"MsgYuiSong" object:_userInfo];
+        
+    }else{
+        //应用处于前台时的本地推送接受
+    }
+    //当应用处于前台时提示设置，需要哪个可以设置哪一个
+    completionHandler(UNNotificationPresentationOptionSound|UNNotificationPresentationOptionBadge|UNNotificationPresentationOptionAlert);
+
+}
+
+//iOS10新增：处理后台点击通知的代理方法   前台后台杀死都在这里
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)())completionHandler{
+        NSDictionary * userInfo = response.notification.request.content.userInfo;
+    self.userInfo = userInfo;
+    if([response.notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]]) {
+        //应用处于后台时的远程推送接受
+        //关闭U-Push自带的弹出框
+        [UMessage setAutoAlert:NO];
+        //必须加这句代码
+        [UMessage didReceiveRemoteNotification:userInfo];
+        
+        
+        if ([UIApplication sharedApplication].applicationState == 1) {
+            
+          [[NSNotificationCenter defaultCenter] postNotificationName:@"MsgYuiSong" object:_userInfo];
+        }
+        else
+        {
+            
+            
+            self.userInfo = userInfo;
+            
+            NSArray *array = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+            
+            NSString *documents = [array lastObject];
+            
+            NSString *documnetPath = [documents stringByAppendingPathComponent:@"dic.plist"];
+            
+            //准备要存入的字典
+            
+            // NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:@"Kevin",@"name",@"男",@"gender",nil
+            
+            
+            //
+            //                             ];
+            
+            //将字典存入指定的本地文件
+            
+            [userInfo writeToFile:documnetPath atomically:YES];
+            
+            //可对已经存储的字典操作
+            
+            NSDictionary *resultDic = [NSDictionary dictionaryWithContentsOfFile:documnetPath];
+            
+            NSLog(@"%@", documnetPath);
+            
+            
+            
+            
+            [[NSUserDefaults standardUserDefaults] setValue:@"1" forKey:@"TuiSongState"];
+
+         
+        }
+        
+        
+        
+        
+    }else{
+        //应用处于后台时的本地推送接受
+    }
+    
+    
+
+    
+    
+
+}
+
+
+
+- (NSDictionary *)dictionaryWithJsonString:(NSString *)jsonString
+{
+    if (jsonString == nil) {
+        return nil;
+    }
+    
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *err;
+    NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                        options:NSJSONReadingMutableContainers
+                                                          error:&err];
+    if(err)
+    {
+        NSLog(@"json解析失败：%@",err);
+        return nil;
+    }
+    return dic;
+}
+
+
+-(void)createWelcomeUI
+{
+    
+    if(![[NSUserDefaults standardUserDefaults] boolForKey:@"everLaunched"])
+    {
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"everLaunched"];
+        
+        // LHFirstRunViewController* tabBarVC = [[LHFirstRunViewController alloc] init] ;
+        WelcomeViewController* tabBarVC = [[WelcomeViewController alloc] init] ;
+        self.window.rootViewController = tabBarVC;
+        
+    }else
+    {
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"intoAppViewcontroller" object:nil];
+        isApplicationFinish = YES;
+        XYMainTabBarController* tabBarVC = [[XYMainTabBarController alloc] init] ;
+        //        [self.window setRootViewController:tabBarVC] ;
+        self.window.rootViewController = tabBarVC;
+        
+       
+    }
+}
+
+#pragma mark - 初始化我的友盟设置
+- (void)setupMyUmSocial {
+    //打开调试日志
+    [[UMSocialManager defaultManager] openLog:YES];
+    
+    //设置友盟appkey
+    [[UMSocialManager defaultManager] setUmSocialAppkey:@"569f392767e58e89f6002890"];
+    
+    // 获取友盟social版本号
+    //NSLog(@"UMeng social version: %@", [UMSocialGlobal umSocialSDKVersion]);
+    
+    //设置微信的appKey和appSecret
+    [[UMSocialManager defaultManager] setPlaform:UMSocialPlatformType_WechatSession appKey:@"wxec8f12f49c2a95a3" appSecret:@"4ed09fe32590a4c445a887e645e0d297" redirectURL:@"http://mobile.umeng.com/social"];
+    
+    
+    [[UMSocialManager defaultManager] setPlaform:UMSocialPlatformType_QQ appKey:@"1105361654"  appSecret:nil redirectURL:@"http://mobile.umeng.com/social"];
+//
+//    //设置新浪的appKey和appSecret
+//    [[UMSocialManager defaultManager] setPlaform:UMSocialPlatformType_Sina appKey:@"3921700954"  appSecret:@"04b48b094faeb16683c32669824ebdad" redirectURL:@"http://sns.whalecloud.com/sina2/callback"];
+//    
+//    //支付宝的appKey
+//    [[UMSocialManager defaultManager] setPlaform: UMSocialPlatformType_AlipaySession appKey:@"2015111700822536" appSecret:nil redirectURL:@"http://mobile.umeng.com/social"];
+//    
+//    //设置易信的appKey
+//    [[UMSocialManager defaultManager] setPlaform: UMSocialPlatformType_YixinSession appKey:@"yx35664bdff4db42c2b7be1e29390c1a06" appSecret:nil redirectURL:@"http://mobile.umeng.com/social"];
+//    
+//    //设置点点虫（原来往）的appKey和appSecret
+//    [[UMSocialManager defaultManager] setPlaform: UMSocialPlatformType_LaiWangSession appKey:@"8112117817424282305" appSecret:@"9996ed5039e641658de7b83345fee6c9" redirectURL:@"http://mobile.umeng.com/social"];
+//    
+//    //设置领英的appKey和appSecret
+//    [[UMSocialManager defaultManager] setPlaform:UMSocialPlatformType_Linkedin appKey:@"81t5eiem37d2sc"  appSecret:@"7dgUXPLH8kA8WHMV" redirectURL:@"https://api.linkedin.com/v1/people"];
+//    
+//    //设置Twitter的appKey和appSecret
+//    [[UMSocialManager defaultManager] setPlaform:UMSocialPlatformType_Twitter appKey:@"fB5tvRpna1CKK97xZUslbxiet"  appSecret:@"YcbSvseLIwZ4hZg9YmgJPP5uWzd4zr6BpBKGZhf07zzh3oj62K" redirectURL:nil];
+}
+
+#pragma mark - 其他回调
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+    NSLog(@"%@", url);
+    BOOL result = [[UMSocialManager defaultManager] handleOpenURL:url];
+    if (!result) {
+        // 其他如支付等SDK的回调
+    } else {
+        
+    }
+    
+    return result;
+}
+
+
+- (void)applicationWillResignActive:(UIApplication *)application {
+    // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
+    // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+}
+
+
+- (void)applicationDidEnterBackground:(UIApplication *)application {
+    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
+    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+}
+
+
+- (void)applicationWillEnterForeground:(UIApplication *)application {
+    // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+}
+
+
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    
+    
+    if (isApplicationFinish == NO) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"intoAppViewcontroller" object:nil];
+    }
+    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+}
+
+
+- (void)applicationWillTerminate:(UIApplication *)application {
+    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+
+@end

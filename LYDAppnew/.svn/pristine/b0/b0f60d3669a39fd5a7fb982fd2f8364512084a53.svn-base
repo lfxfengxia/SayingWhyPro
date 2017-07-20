@@ -1,0 +1,54 @@
+//
+//  UIViewController+DSY.m
+//  LYDApp
+//
+//  Created by dai yi on 2016/12/22.
+//  Copyright © 2016年 dookay_73. All rights reserved.
+//
+
+#import "UIViewController+DSY.h"
+#import "XYNavigationController.h"
+#import "XYLoginController.h"
+
+@implementation UIViewController (DSY)
+
+#pragma mark -push到登录页面
+- (void)pushToLoginController {
+    // 清空Token
+    UserDefaultsWriteObj(@"", @"access-token");
+    
+    //self.tabBarController.selectedIndex = 1;
+    XYLoginController *login=[[XYLoginController alloc] init];
+    login.hidesBottomBarWhenPushed=YES;
+    [self.navigationController pushViewController:login animated:YES];
+    
+    
+    
+    
+}
+
+#pragma 
+- (void)presentToLoginController:(void (^ __nullable)(void))completion {
+//    // 清空Token
+//    UserDefaultsWriteObj(@"", @"access-token");
+//    XYLoginController *loginVC = [XYLoginController sharedXYLoginController];
+//    loginVC.hidesBottomBarWhenPushed = YES;
+//    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:loginVC];
+////    XYNavigationController *nav = [XYNavigationController sharedXYNavigationController];
+//    
+//    [self presentViewController:nav animated:YES completion:completion];
+}
+
+#pragma mark -present一个背景透明的控制器
+- (void)presentDSYViewController:(UIViewController *)viewController {
+    if ([[[UIDevice currentDevice] systemVersion] floatValue]>=8.0) {
+        viewController.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        
+    }else{
+        self.modalPresentationStyle = UIModalPresentationCurrentContext;
+    }
+    
+    [self presentViewController:viewController animated:NO completion:nil];
+}
+
+@end

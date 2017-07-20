@@ -1,0 +1,47 @@
+//
+//  XYPlanModel.h
+//  LYDApp
+//
+//  Created by dookay_73 on 16/11/2.
+//  Copyright © 2016年 dookay_73. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface XYPlanModel : DSYBaseModel
+
+@property (nonatomic, strong, setter=setId:) NSString  *planId;
+@property (nonatomic, strong) NSString  *rate;
+@property (nonatomic, strong) NSString  *time;
+@property (nonatomic, strong) NSString  *money;
+@property (nonatomic, strong) NSString  *payWay;
+@property (nonatomic, strong) NSString  *startMoney;
+@property (nonatomic, strong) NSString  *lastMoney;
+@property (nonatomic, strong) NSString  *minAmount;
+
+
+@property (nonatomic, strong) NSString  *totalMoney;
+@property (nonatomic, strong) NSString  *totalSoldAmount;
+//@property (nonatomic, assign) CGFloat totalMoney;
+
+
+
+@property (nonatomic, strong) NSString  *location;
+
+@property (nonatomic, strong) NSString  *title;
+@property (nonatomic, strong) NSString  *apr;//总利息（贴息+基本利息）
+@property (nonatomic, strong) NSString  *repaymentType;
+@property (nonatomic, strong) NSString  *periods;
+@property (nonatomic, strong) NSString  *perAmount;
+@property (nonatomic, assign) NSString  *periodUnit;
+@property (nonatomic, strong) NSString  *aprDiscount;//贴息
+
+
+@property (nonatomic, strong) NSString *bidType;//1为零定宝
+@property (nonatomic, strong) NSString *loanSchedule;//借款进度
+@property (nonatomic, strong) NSString *leftAmount;//剩余标的金额
+@property (nonatomic,strong) NSString *hadInvestAct;//判断新手标是否可投
+
+
+
+@end

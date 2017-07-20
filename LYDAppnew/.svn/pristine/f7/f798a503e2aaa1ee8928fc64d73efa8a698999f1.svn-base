@@ -1,0 +1,335 @@
+//
+//  SheZhiAnQuanViewController.m
+//  LYDApp
+//
+//  Created by fcl on 2017/7/1.
+//  Copyright © 2017年 dookay_73. All rights reserved.
+//
+
+#import "SheZhiAnQuanViewController.h"
+#import "RBAboutUsViewController.h"
+#import "RBMessageCenterViewController.h"
+#import "RBServiceCenterViewController.h"
+#import "RBFeedBackViewController.h"
+
+#import "DSYAbountUsController.h"
+#import "DSYHelpWebViewController.h"
+
+#import "DSYAbountUsWebViewController.h"         // 关于我们
+#import "DSYInvestIntroWebViewController.h"      // 投资说明
+#import "DSYHelpWebViewController.h"             // 帮助中心
+#import "DSYCustomerWebViewController.h"         // 消息中心、
+#import "WYJKViewController.h"//我要借款
+#import "toolsimple.h"
+#import "XYBannerModel.h"
+
+@interface SheZhiAnQuanViewController ()<UITableViewDataSource, UITableViewDelegate>
+
+@property (nonatomic, strong) UITableView *tableView;
+@end
+
+@implementation SheZhiAnQuanViewController
+
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.titleNavigationBarLabel.text = @"设置与安全";
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    self.view.backgroundColor = [UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1.00];
+    [self createUI];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+}
+
+- (void)createUI {
+
+    
+    _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, kSCREENW, kSCREENH-64) style:UITableViewStyleGrouped];
+    _tableView.delegate = self;
+    _tableView.dataSource = self;
+    [self.view addSubview:_tableView];
+    _tableView.separatorColor=[UIColor clearColor];
+    
+}
+
+
+
+
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 3;
+    
+}
+
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (section==0) {
+        return 3;
+    }else if(section==1)
+    {
+        
+        return 3;
+    }
+    else
+    {
+        return 1;
+    
+    }
+    
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (indexPath.section==0) {
+        if (indexPath.row==0) {
+                static NSString *identify = @"section00";
+                UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identify];
+            
+                if (cell == nil) {
+                    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:identify];
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    cell.textLabel.font = [UIFont fontWithName:@".PingFangSC-Light" size:14];
+                    cell.textLabel.textColor= [UIColor colorWithRed:34/255.0 green:34/255.0 blue:34/255.0 alpha:1/1.0];
+                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                    cell.detailTextLabel.font = DSY_NORMALFONT_13;
+                    cell.imageView.image = [UIImage imageNamed:@"实名认证"];
+                    cell.textLabel.text=@"实名认证";
+                }
+                return cell;
+
+        }
+        else  if (indexPath.row==1) {
+            static NSString *identify = @"section01";
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identify];
+            
+            if (cell == nil) {
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:identify];
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                cell.textLabel.font = [UIFont fontWithName:@".PingFangSC-Light" size:14];
+                cell.textLabel.textColor= [UIColor colorWithRed:34/255.0 green:34/255.0 blue:34/255.0 alpha:1/1.0];
+                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                cell.detailTextLabel.font = DSY_NORMALFONT_13;
+                cell.imageView.image = [UIImage imageNamed:@"手机号"];
+                cell.textLabel.text=@"手机号";
+                
+                
+                UIImageView  *imglineheng=[[UIImageView alloc] initWithFrame:CGRectMake(0,0, cell.frame.size.width, 1)];
+                imglineheng.image=[UIImage imageNamed:@"licai_line_hui"];
+                [cell.contentView addSubview:imglineheng];
+            }
+            return cell;
+        }
+        else
+        {
+            static NSString *identify = @"section02";
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identify];
+            
+            if (cell == nil) {
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:identify];
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                cell.textLabel.font = [UIFont fontWithName:@".PingFangSC-Light" size:14];
+                cell.textLabel.textColor= [UIColor colorWithRed:34/255.0 green:34/255.0 blue:34/255.0 alpha:1/1.0];
+                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                cell.detailTextLabel.font = DSY_NORMALFONT_13;
+                cell.imageView.image = [UIImage imageNamed:@"我的昵称"];
+                cell.textLabel.text=@"我的昵称";
+                UIImageView  *imglineheng=[[UIImageView alloc] initWithFrame:CGRectMake(0,0, cell.frame.size.width, 1)];
+                imglineheng.image=[UIImage imageNamed:@"licai_line_hui"];
+                [cell.contentView addSubview:imglineheng];
+            }
+            return cell;
+        
+        }
+    }
+    else if(indexPath.section==1)
+    {
+        
+        if (indexPath.row==0) {
+            static NSString *identify = @"section10";
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identify];
+            
+            if (cell == nil) {
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:identify];
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                cell.textLabel.font = [UIFont fontWithName:@".PingFangSC-Light" size:14];
+                cell.textLabel.textColor= [UIColor colorWithRed:34/255.0 green:34/255.0 blue:34/255.0 alpha:1/1.0];
+                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                cell.detailTextLabel.font = DSY_NORMALFONT_13;
+                cell.imageView.image = [UIImage imageNamed:@"修改登录密码"];
+                cell.textLabel.text=@"修改登录密码";
+            }
+            return cell;
+            
+        }
+        else{
+            static NSString *identify = @"section11";
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identify];
+            
+            if (cell == nil) {
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:identify];
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                cell.textLabel.font = [UIFont fontWithName:@".PingFangSC-Light" size:14];
+                cell.textLabel.textColor= [UIColor colorWithRed:34/255.0 green:34/255.0 blue:34/255.0 alpha:1/1.0];
+                cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+                cell.detailTextLabel.font = DSY_NORMALFONT_13;
+                cell.imageView.image = [UIImage imageNamed:@"我的银行卡"];
+                cell.textLabel.text=@"我的银行卡";
+                UIImageView  *imglineheng=[[UIImageView alloc] initWithFrame:CGRectMake(0,0, cell.frame.size.width, 1)];
+                imglineheng.image=[UIImage imageNamed:@"licai_line_hui"];
+                [cell.contentView addSubview:imglineheng];
+            }
+            return cell;
+        }
+
+    
+    }
+    else
+    {
+        static NSString *identify = @"section2";
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identify];
+        
+        if (cell == nil) {
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:identify];
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            cell.textLabel.font = [UIFont fontWithName:@".PingFangSC-Light" size:14];
+            cell.textLabel.textColor= [UIColor colorWithRed:34/255.0 green:34/255.0 blue:34/255.0 alpha:1/1.0];
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.detailTextLabel.font = DSY_NORMALFONT_13;
+            cell.imageView.image = [UIImage imageNamed:@"设置开户"];
+            cell.textLabel.text=@"设置开户";
+        }
+        return cell;
+    
+    
+    }
+    
+    
+    
+    
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+//    
+//    
+//    
+//    
+//    if (indexPath.section==0) {
+//        
+//        WYJKViewController *aboutUsVC = [[WYJKViewController alloc] init];
+//        //        aboutUsVC.title = _dataArray[indexPath.row];
+//        aboutUsVC.hidesBottomBarWhenPushed = YES;
+//        [self.navigationController pushViewController:aboutUsVC animated:YES];
+//    }
+//    else
+//    {
+//        
+//        if (indexPath.row == 0) {
+//            // 关于我们
+//            DSYAbountUsWebViewController *aboutUsVC = [[DSYAbountUsWebViewController alloc] init];
+//            aboutUsVC.strurl=[NSString stringWithFormat:@"%@/content/about", APIPREFIX];
+//            
+//            //        aboutUsVC.title = _dataArray[indexPath.row];
+//            aboutUsVC.hidesBottomBarWhenPushed = YES;
+//            [self.navigationController pushViewController:aboutUsVC animated:YES];
+//        }
+//        
+//        else if (indexPath.row == 1) {
+//            DSYHelpWebViewController *helpVC = [[DSYHelpWebViewController alloc] init];
+//            helpVC.hidesBottomBarWhenPushed = YES;
+//            [self.navigationController pushViewController:helpVC animated:YES];
+//        } else if (indexPath.row == 2) {
+//            DSYCustomerWebViewController *serviceCenterVC = [[DSYCustomerWebViewController alloc] init];
+//            serviceCenterVC.hidesBottomBarWhenPushed = YES;
+//            [self.navigationController pushViewController:serviceCenterVC animated:YES];
+//        } else if (indexPath.row == 3) {
+//            if ([TOKEN length] == 0) {
+//                [self pushToLoginController];
+//            } else {
+//                RBFeedBackViewController *feedbackVC = [[RBFeedBackViewController alloc] init];
+//                feedbackVC.title = _dataArray[indexPath.row];
+//                feedbackVC.hidesBottomBarWhenPushed = YES;
+//                [self.navigationController pushViewController:feedbackVC animated:YES];
+//            }
+//            
+//        } else if (indexPath.row == 4) {
+//            
+//        } else if (indexPath.row == 5) {
+//            __weak SheZhiAnQuanViewController *weakSelf = self;
+//            UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+//            cell.detailTextLabel.text = @"正在计算";
+//            dispatch_async(dispatch_get_global_queue(0, 0), ^{
+//                NSString *show = [weakSelf caluteCache];
+//                show = [NSString stringWithFormat:@"将清除%@的缓存", show];
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//                    
+//                    UIAlertController *alertVC = [UIAlertController alertControllerWithTitle:@"确定清除缓存" message:show preferredStyle:UIAlertControllerStyleAlert];
+//                    
+//                    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+//                        
+//                    }];
+//                    UIAlertAction *doneAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+//                        [[SDImageCache sharedImageCache] clearDiskOnCompletion:^{
+//                            dispatch_async(dispatch_get_global_queue(0, 0), ^{
+//                                
+//                                [NSThread sleepForTimeInterval:2.0];
+//                                NSString *filsPath = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).lastObject stringByAppendingPathComponent:@"CustomFile"];
+//                                NSFileManager *mgr = [NSFileManager defaultManager];
+//                                [mgr removeItemAtPath:filsPath error:nil];
+//                                [mgr createDirectoryAtPath:filsPath withIntermediateDirectories:YES attributes:nil error:nil];
+//                                
+//                                dispatch_async(dispatch_get_main_queue(), ^{
+//                                    
+//                                });
+//                            });
+//                        }];
+//                    }];
+//                    
+//                    [alertVC addAction:cancelAction];
+//                    [alertVC addAction:doneAction];
+//                    cell.detailTextLabel.text = @"";
+//                    [weakSelf presentViewController:alertVC animated:YES completion:nil];
+//                });
+//            });
+//            
+//        } else {
+//            NSLog(@"else");
+//        }
+//        
+//    }
+//    
+//    
+//    
+//    
+//    
+//    
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 44.0f;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    
+//    if (section==1) {
+//        return 10;
+//    }
+//    else
+//    {
+//        return 0.01f;
+//    }
+    return 10;
+    
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    return 0.01f;
+}
+
+
+
+@end

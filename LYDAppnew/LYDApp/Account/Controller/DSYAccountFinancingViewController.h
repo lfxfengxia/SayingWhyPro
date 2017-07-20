@@ -1,0 +1,15 @@
+//
+//  DSYAccountFinancingViewController.h
+//  LYDApp
+//
+//  Created by dai yi on 2016/11/5.
+//  Copyright © 2016年 dookay_73. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface DSYAccountFinancingViewController : DSYBaseViewController
+
+@property (nonatomic, assign) BOOL completeRefresh;   /**< 完成是否需要刷星 */
+@property(nonatomic,copy)NSString *bidType;
+@end

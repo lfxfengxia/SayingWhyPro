@@ -1,0 +1,32 @@
+//
+//  xiaoxiModel.h
+//  LYDApp
+//
+//  Created by fcl on 2017/7/1.
+//  Copyright © 2017年 dookay_73. All rights reserved.
+//
+
+
+//@ApiModelProperty("推送id")
+//private String id;
+//
+//@ApiModelProperty("推送标题")
+//private String title;
+//
+//@ApiModelProperty("推送内容")
+//private String pushStr;
+//
+//@ApiModelProperty("推送时间")
+//private Date pushTime;
+
+#import <Foundation/Foundation.h>
+
+@interface xiaoxiModel : NSObject
+@property (nonatomic, assign) NSInteger  *id;
+
+@property (nonatomic, strong) NSString  *content;
+@property (nonatomic, strong) NSString  *pushStr;
+@property (nonatomic, strong) NSString  *pushTime;
+@property (nonatomic, strong) NSString  *title;
+@property (nonatomic, assign) CGFloat   cellHeight;
+@end

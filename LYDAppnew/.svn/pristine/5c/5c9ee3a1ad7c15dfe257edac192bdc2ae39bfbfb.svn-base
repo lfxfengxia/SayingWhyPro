@@ -1,0 +1,28 @@
+//
+//  XYLoginController.h
+//  LYDApp
+//
+//  Created by dookay_73 on 16/10/31.
+//  Copyright © 2016年 dookay_73. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface XYLoginController : UIViewController
+
+@property (nonatomic, strong) UIButton      *backBtn;
+@property (nonatomic, assign) BOOL          hiddenBackBtn;
+
+@property (nonatomic,   copy) NSString *comefromModifyPassword;
+
+/**
+ * 跳转到登录页面
+ */
++ (void)becomeRootViewController;
+
+///**
+// * push到登录页面并清空token, 通过nav
+// */
+//+ (void)pushToLoginControllerWithController:(UINavigationController *)navigationController;
+
+@end

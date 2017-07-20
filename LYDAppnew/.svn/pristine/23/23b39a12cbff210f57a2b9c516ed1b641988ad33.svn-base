@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "C6E53795ABC125C17D6D6B3C7F8AE6E8018B8999",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "F2FDD3311062CA8A8FFE1EE2E1F187DC288CB6FB" : 9223372036854775807,
+    "C6E53795ABC125C17D6D6B3C7F8AE6E8018B8999" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "9C239D23-66DA-465D-9CA3-1D4930508E48",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "F2FDD3311062CA8A8FFE1EE2E1F187DC288CB6FB" : "",
+    "C6E53795ABC125C17D6D6B3C7F8AE6E8018B8999" : "LYD\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "LYDApp",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "iOSCode\/LYDApp\/LYDApp.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "http:\/\/git.coralcodes.com:30000\/groupMVP\/lyd-invest-app.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "C6E53795ABC125C17D6D6B3C7F8AE6E8018B8999"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "http:\/\/git.coralcodes.com:30000\/groupMVP\/DDJApp-iOS.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "F2FDD3311062CA8A8FFE1EE2E1F187DC288CB6FB"
+    }
+  ]
+}

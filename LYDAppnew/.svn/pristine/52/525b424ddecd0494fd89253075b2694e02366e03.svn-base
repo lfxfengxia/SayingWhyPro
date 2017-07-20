@@ -1,0 +1,90 @@
+//
+//  XYMainTabBarController.m
+//  LYDApp
+//
+//  Created by dookay_73 on 16/10/31.
+//  Copyright © 2016年 dookay_73. All rights reserved.
+//
+
+#import "XYMainTabBarController.h"
+#import "XYHomeController.h"
+#import "XYMoneyController.h"
+#import "XYAccountController.h"
+#import "XYMoreController.h"
+#import "XYHomeControllerXin.h"
+
+@interface XYMainTabBarController ()
+
+@end
+
+@implementation XYMainTabBarController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // 更新用户数据
+//    [[DSYAccount sharedDSYAccount] updateMyAccountForViewController:self complete:^{
+//        [self setupChildControllers];
+//    }];
+    
+//    [[DSYAccount sharedDSYAccount] updateMyAccountWithComplete:^{
+        [self setupChildControllers];
+//    }];
+    
+    
+    [self.tabBar setBarTintColor:[UIColor colorWithRed:0.93f green:0.93f blue:0.93f alpha:1.00f]];
+    
+}
+
+- (void)setupChildControllers
+{
+    XYHomeControllerXin *home = [[XYHomeControllerXin alloc] init];
+    [self setupChildControllers:home WithTitle:@"首页" imageName:@"Home" selectedImageName:@"HomeH"];
+    
+    XYMoneyController *circle = [[XYMoneyController alloc] init];
+    [self setupChildControllers:circle WithTitle:@"理财" imageName:@"Money" selectedImageName:@"MoneyH"];
+    
+    XYAccountController *guess = [[XYAccountController alloc] init];
+    [self setupChildControllers:guess WithTitle:@"账户" imageName:@"Account" selectedImageName:@"AccountH"];
+    
+    XYMoreController *goods = [[XYMoreController alloc] init];
+    [self setupChildControllers:goods WithTitle:@"更多" imageName:@"More" selectedImageName:@"MoreH"];
+}
+
+#pragma mark - 设置子控制器的方法
+- (void)setupChildControllers:(UIViewController *)childVC WithTitle:(NSString *)title imageName:(NSString *)imageName selectedImageName:(NSString *)selectedImageName
+{
+    childVC.title = title;
+    childVC.tabBarItem.image = [[UIImage imageNamed:imageName] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    childVC.tabBarItem.selectedImage = [[UIImage imageNamed:selectedImageName] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:childVC];
+    [nav.navigationBar setTintColor:[UIColor whiteColor]];
+    
+    [self addChildViewController:nav];
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations{
+    return UIInterfaceOrientationMaskPortrait;
+}
+
+- (BOOL)prefersStatusBarHidden {
+    return NO;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

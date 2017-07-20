@@ -1,0 +1,651 @@
+//
+//  YiYueBiaoDetailViewController.m
+//  LYDApp
+//
+//  Created by fcl on 2017/6/23.
+//  Copyright © 2017年 dookay_73. All rights reserved.
+//
+
+#import "YiYueBiaoDetailViewController.h"
+#import "WenTiCell.h"
+#import "WenTiModel.h"
+#import "DSYAbountUsWebViewController.h"
+#import "YiYueBiaoGouMaiViewController.h"
+#import "LDBDetailViewController.h"
+
+
+
+@interface YiYueBiaoDetailViewController ()<UITableViewDataSource, UITableViewDelegate>
+@property (nonatomic, strong) UIView *headview;
+@property (nonatomic, strong) UIView *headtop;
+@property (nonatomic, strong) UIImageView *headbottom;
+@property (nonatomic, strong) UITableView *tableView;
+@property (nonatomic, copy) NSMutableArray  *dataArr;
+@property(nonatomic,strong) UIView *view_2;
+@property(nonatomic,strong)UIImageView *smallImageView;
+@property (nonatomic, strong) UILabel *lblloanSchedule;//标的进度
+@property(nonatomic,strong)UIWebView *uw;
+@property(nonatomic,strong)UILabel *rateLabelAprDiscountLabel;
+@property(nonatomic,strong)UILabel *moneyLabel;
+
+@end
+
+@implementation YiYueBiaoDetailViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    self.view.backgroundColor = RGB(255, 255, 255);
+    self.navigaTitle = _chanshu.title;
+
+    [self  createUI];
+    [self loadData];
+    [self LoadDetailData];
+    
+    
+}
+
+
+
+
+
+
+-(void)LoadDetailData{
+    [self.tableView.header endRefreshing];
+    [self.tableView.footer endRefreshing];
+    NSString *timestamp = [LYDTool createTimeStamp];
+    
+    NSDictionary *secretDict = @{@"bidType":_chanshu.bidType,@"appKey":APPKEY, @"timestamp":timestamp, @"deviceId":DEVICEID, @"token":TOKEN};
+    // 生成签名认证
+    NSString *sign = [LYDTool createMD5SignWithDictionary:secretDict];
+    NSDictionary *para = @{@"bidType":_chanshu.bidType,@"appKey":APPKEY, @"timestamp":timestamp, @"deviceId":DEVICEID, @"token":TOKEN, @"sign":sign};
+    
+    // 开始请求数据/product/newPlans/{planId}
+    [LYDTool sendGetWithUrl:[NSString stringWithFormat:@"%@/product/newPlans/%@", APIPREFIX,_chanshu.planId] parameters:para success:^(id data) {
+        [MBProgressHUD hideHUDForView:self.view animated:YES];
+        
+        id backData = LYDJSONSerialization(data);
+        
+        if ([[backData valueForKey:@"code"] integerValue] == 200) {
+            //            BuyFenshuMarkVC *buy=[[BuyFenshuMarkVC alloc]init];
+            //            buy.myBalance=backData[@"availableBalance"];
+            //            buy.model=[XYPlanModel baseModelWithDic:backData[@"planModel"]];
+            //            [self.navigationController pushViewController:buy animated:YES];
+            //            LYDPlanDetailController *detailVC = [[LYDPlanDetailController alloc] init];
+            //            detailVC.model =  [XYPlanModel baseModelWithDic:backData[@"planModel"]];
+            //            detailVC.hidesBottomBarWhenPushed = YES;
+            //            [self.navigationController pushViewController:detailVC animated:YES];
+            XYPlanModel   *model=[XYPlanModel baseModelWithDic:backData[@"planModel"]];
+            self.modelData=model;
+            [self LoadUI];
+            [self.tableView reloadData];
+            
+            
+        } else if ([[backData valueForKey:@"code"] integerValue] == 600) {
+            [DSYUtils showSuccessForStatus_600_ForViewController:self];
+        } else {
+            
+            XYErrorHud *errorHud = [[XYErrorHud alloc] initWithTitle:@"获取余额失败" andDoneBtnTitle:nil andDoneBtnHidden:YES];
+            [self.view.window addSubview:errorHud];
+            //self.balanceLabel.text = [NSString stringWithFormat:@"余额获取失败"];
+        }
+        
+        
+        
+    } fail:^(NSError *error, AFHTTPRequestOperation *operation) {
+        [MBProgressHUD hideHUDForView:self.view animated:YES];
+        NSInteger errorData = operation.response.statusCode;
+        
+        NSLog(@"%zi",operation.response.statusCode);
+        
+        if (errorData == 401) {
+            // 401错误处理
+            [DSYUtils showResponseError_401_ForViewController:self];
+        } else if (errorData == 404) {
+            [DSYUtils showResponseError_404_ForViewController:self message:@"未找到该用户，是否登陆" okHandler:^(UIAlertAction *action) {
+                [self pushToLoginController];
+                
+            } cancelHandler:^(UIAlertAction *action) {
+            }];
+        }
+    }];
+    
+}
+
+
+- (NSMutableArray *)dataArr
+{
+    if (!_dataArr) {
+        _dataArr = [NSMutableArray arrayWithCapacity:0];
+    }
+    return _dataArr;
+}
+
+
+
+- (void)loadData
+{
+    [MBProgressHUD showMessage:@"正在加载..." toView:self.view];
+    NSString *timestamp = [LYDTool createTimeStamp];
+    
+    NSDictionary *secretDict = @{@"appKey":APPKEY,@"timestamp":timestamp,@"deviceId":DEVICEID,@"token":TOKEN};
+    
+    NSString *sign = [LYDTool createMD5SignWithDictionary:secretDict];
+    NSDictionary *para = @{@"appKey":APPKEY,@"timestamp":timestamp,@"deviceId":DEVICEID,@"token":TOKEN,@"sign":sign};
+    
+    
+    [LYDTool sendGetWithUrl:[NSString stringWithFormat:@"%@/content/getPlanCategory",APIPREFIX] parameters:para success:^(id data) {
+        [MBProgressHUD hideHUDForView:self.view];
+        id backData = LYDJSONSerialization(data);
+        NSLog(@"%@",backData);
+        for (NSDictionary *dict in [backData valueForKey:@"newsList"]) {
+            WenTiModel *model = [[WenTiModel alloc] init];
+            [model setValuesForKeysWithDictionary:dict];
+            [self.dataArr addObject:model];
+        }
+        [self.tableView reloadData];
+        
+    } fail:^(NSError *error, AFHTTPRequestOperation *operation) {
+        
+        [MBProgressHUD hideHUDForView:self.view];
+        //        [self.tableView.header endRefreshing];
+        //        [self.tableView.footer endRefreshing];
+        //
+        //
+        //
+        id response = LYDJSONSerialization(operation.responseObject);
+        NSLog(@"%@",response);
+        if ([[response valueForKey:@"code"] integerValue] == 401) {
+            [DSYUtils showResponseError_401_ForViewController:self];
+            
+        } else {
+            XYErrorHud *errorHud = [[XYErrorHud alloc] initWithTitle:@"网络错误" andDoneBtnTitle:nil andDoneBtnHidden:YES];
+            [self.view.window addSubview:errorHud];
+        }
+        
+    }];
+    
+}
+
+
+
+
+- (void)LoadUI {
+    
+
+    
+    
+        NSString *rateLabel=[NSString stringWithFormat:@"%.2f",[self.modelData.apr floatValue]-[self.modelData.aprDiscount floatValue]];
+        NSString *aprDiscountLabel=[NSString stringWithFormat:@"%.2f%%",[self.modelData.aprDiscount floatValue]];
+    
+    
+    
+
+        _rateLabelAprDiscountLabel.text =[NSString stringWithFormat:@"%@%%+%@%%",rateLabel,aprDiscountLabel];
+
+    
+    
+    
+        NSString *Ratastr=[NSString stringWithFormat:@"%.2f%%+%.2f%%",[rateLabel floatValue],[aprDiscountLabel floatValue]];
+        NSMutableAttributedString *str1=[[NSMutableAttributedString alloc]initWithString:Ratastr];
+        [str1 addAttribute:NSFontAttributeName value: [UIFont systemFontOfSize:34] range:NSMakeRange(0, rateLabel.length)];
+        _rateLabelAprDiscountLabel.attributedText = str1;
+    
+
+    
+    NSMutableAttributedString *attr=[[NSMutableAttributedString alloc]initWithString:[NSString stringWithFormat:@"仅剩%@元可投",self.modelData.leftAmount]];
+    [attr addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:32] range:NSMakeRange(2, [NSString stringWithFormat:@"%@",self.modelData.leftAmount].length)];
+        _moneyLabel.attributedText =attr;
+    
+//        _view_2= [[UIView alloc]initWithFrame:CGRectMake(KWidth(20), _moneyLabel.maxY+KHeight(12), self.modelData.loanSchedule.intValue*(kSCREENW-2*KWidth(20))*0.01, 8)];
+    
+    _view_2.frame=CGRectMake(KWidth(20), _moneyLabel.maxY+KHeight(12), self.modelData.loanSchedule.intValue*(kSCREENW-2*KWidth(20))*0.01, 8);
+
+//        _smallImageView = [[UIImageView alloc]initWithFrame:CGRectMake(_view_2.maxX, _moneyLabel.maxY+KHeight(12)-6, 20, 20)];
+    
+    _smallImageView.frame=CGRectMake(_view_2.maxX-6, _view_2.maxY-KHeight(4)-7.5, 15, 15);
+    
+    
+    
+    //百分比
+    
+    
+        int ttttt = [self.modelData.loanSchedule intValue];
+    
+        _lblloanSchedule.text=[NSString stringWithFormat:@"%d%%",ttttt];
+
+    //http://27.115.115.86:8060/product/investRecordPage?bidTypeStr=1&idStr=1
+    //   NSString *strurl=[NSString stringWithFormat:@"%@/product/investRecordPage?bidTypeStr=%@&idStr=%@", APIPREFIX,_model.bidType,_model.planId];
+    
+         NSString *strurl=[NSString stringWithFormat:@"%@/product/investRecordPage?bidTypeStr=%@&idStr=%@",APIPREFIX,_modelData.bidType,_modelData.planId];
+    
+        NSURL* url = [NSURL URLWithString:strurl];//创建URL
+        NSURLRequest* request = [NSURLRequest requestWithURL:url];//创建NSURLRequest
+        [_uw loadRequest:request];//加载
+
+    
+}
+
+
+
+
+
+- (void)createUI {
+    
+    
+    
+    
+    _headview = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kSCREENW, KHeight(11)+KHeight(158)+KHeight(11)+KHeight(211))];
+    _headview.backgroundColor =[UIColor clearColor];
+    
+    _headtop = [[UIView alloc] initWithFrame:CGRectMake((kSCREENW-KWidth(351))/2, KHeight(11), KWidth(351), KHeight(158))];
+    _headtop.backgroundColor = RGB(255, 255, 255);
+    
+    UIImageView *img1=[[UIImageView alloc] initWithFrame:CGRectMake((_headtop.frame.size.width-KWidth(126))/2, KHeight(20), KWidth(126), KHeight(12))];
+    img1.image=[UIImage imageNamed:@"Groupyujinianhuan"];
+    [_headtop addSubview:img1];
+    
+    
+    _rateLabelAprDiscountLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, img1.maxY+KHeight(20), kSCREENW, KHeight(34))];
+    _rateLabelAprDiscountLabel.textAlignment=NSTextAlignmentCenter;
+    _rateLabelAprDiscountLabel.font = [UIFont systemFontOfSize:KHeight(20)];
+    _rateLabelAprDiscountLabel.adjustsFontSizeToFitWidth = YES;
+//    rateLabelAprDiscountLabel.text =[NSString stringWithFormat:@"%@%%+%@%%",rateLabel,aprDiscountLabel];
+    _rateLabelAprDiscountLabel.textColor=ORANGECOLOR;
+    
+    
+    
+
+    
+    
+    UILabel *label1 = [[UILabel alloc] initWithFrame:CGRectMake(KWidth(33), _rateLabelAprDiscountLabel.maxY+KHeight(20), (_headtop.frame.size.width-4*KWidth(33))/3, KHeight(16))];
+    label1.textAlignment=NSTextAlignmentCenter;
+    label1.font = [UIFont systemFontOfSize:12];
+    label1.text=@"智能分散";
+    label1.textColor=[UIColor colorWithRed:255/255.0 green:121/255.0 blue:1/255.0 alpha:1/1.0];
+    label1.layer.borderWidth=1;
+    label1.layer.borderColor=[UIColor colorWithRed:255/255.0 green:121/255.0 blue:1/255.0 alpha:1/1.0].CGColor;
+    label1.layer.cornerRadius=5;
+    [_headtop addSubview:label1];
+    
+    
+    
+    UILabel *label2 = [[UILabel alloc] initWithFrame:CGRectMake(label1.maxX+KWidth(33), _rateLabelAprDiscountLabel.maxY+KHeight(20), (_headtop.frame.size.width-4*KWidth(33))/3, KHeight(16))];
+    label2.textAlignment=NSTextAlignmentCenter;
+    label2.font = [UIFont systemFontOfSize:12];
+    label2.text=@"定期理财";
+    label2.textColor=[UIColor colorWithRed:255/255.0 green:121/255.0 blue:1/255.0 alpha:1/1.0];
+    label2.layer.borderWidth=1;
+    label2.layer.borderColor=[UIColor colorWithRed:255/255.0 green:121/255.0 blue:1/255.0 alpha:1/1.0].CGColor;
+    label2.layer.cornerRadius=5;
+    [_headtop addSubview:label2];
+    
+    
+    UILabel *label3 = [[UILabel alloc] initWithFrame:CGRectMake(label2.maxX+KWidth(33), _rateLabelAprDiscountLabel.maxY+KHeight(20), (_headtop.frame.size.width-4*KWidth(33))/3, KHeight(16))];
+    label3.textAlignment=NSTextAlignmentCenter;
+    label3.font = [UIFont systemFontOfSize:12];
+    label3.text=@"省心高息";
+    label3.textColor=[UIColor colorWithRed:255/255.0 green:121/255.0 blue:1/255.0 alpha:1/1.0];
+    label3.layer.borderWidth=1;
+    label3.layer.borderColor=[UIColor colorWithRed:255/255.0 green:121/255.0 blue:1/255.0 alpha:1/1.0].CGColor;
+    label3.layer.cornerRadius=5;
+    [_headtop addSubview:label3];
+    
+    
+    
+    [_headtop addSubview:_rateLabelAprDiscountLabel];
+    [_headview addSubview:_headtop];
+    
+    _headbottom = [[UIImageView alloc] initWithFrame:CGRectMake(0, _headtop.maxY+KHeight(11), kSCREENW, KHeight(211))];
+    _headbottom.image=[UIImage imageNamed:@"1月标b"];
+    UILabel *label = [[UILabel alloc] init];
+    label.frame = CGRectMake(0, KHeight(22), kSCREENW,KHeight(19));
+    label.text = @"认购进度";
+    label.font = [UIFont systemFontOfSize:16];
+    label.textColor = [UIColor colorWithRed:255/255.0 green:255/255.0 blue:255/255.0 alpha:1/1.0];
+    label.textAlignment=NSTextAlignmentCenter;
+    
+    [_headbottom addSubview:label];
+    
+    
+    _moneyLabel = [[UILabel alloc] init];
+    _moneyLabel.frame = CGRectMake(0, label.maxY+KHeight(10), kSCREENW, KHeight(28));
+    
+//    moneyLabel.text =[NSString stringWithFormat:@"仅剩%@元可投",self.modelData.leftAmount];
+    _moneyLabel.font = [UIFont systemFontOfSize:14];
+    _moneyLabel.textColor = [UIColor colorWithRed:255/255.0 green:255/255.0 blue:255/255.0 alpha:1/1.0];
+    _moneyLabel.textAlignment=NSTextAlignmentCenter;
+    [_headbottom addSubview:_moneyLabel];
+    
+
+    
+    
+    UIView *view_1 = [[UIView alloc]initWithFrame:CGRectMake(KWidth(20), _moneyLabel.maxY+KHeight(12),kSCREENW-2*KWidth(20)-KWidth(24)-KWidth(10), 8)];
+    
+    
+    view_1.backgroundColor=[UIColor whiteColor];
+
+    view_1.layer.cornerRadius=5;
+    [_headbottom addSubview:view_1];
+    
+    
+//    _view_2= [[UIView alloc]initWithFrame:CGRectMake(KWidth(20), moneyLabel.maxY+KHeight(12), self.modelData.loanSchedule.intValue*(kSCREENW-2*KWidth(20))*0.01, 8)];
+      _view_2= [[UIView alloc] init];
+    
+    
+    
+    _view_2=[[UIView alloc] init];
+    _view_2.backgroundColor = [UIColor colorWithRed:255/255.0 green:232/255.0 blue:1/255.0 alpha:1/1.0];
+    _view_2.layer.cornerRadius=5;
+    [_headbottom addSubview:_view_2];
+    
+    
+//    _smallImageView = [[UIImageView alloc]initWithFrame:CGRectMake(_view_2.maxX, _moneyLabel.maxY+KHeight(12)-6, 20, 20)];
+    _smallImageView = [[UIImageView alloc] init];
+    _smallImageView.image = [UIImage imageNamed:@"圆点"];
+    [_headbottom addSubview:_smallImageView];
+    
+    
+    
+    
+    //百分比
+    
+    _lblloanSchedule = [[UILabel alloc]initWithFrame:CGRectMake(view_1.maxX+KWidth(10), view_1.y, KWidth(24), 8)];
+//    int ttttt = [self.modelData.loanSchedule intValue];
+    
+//    _lblloanSchedule.text=[NSString stringWithFormat:@"%d%%",ttttt];
+    _lblloanSchedule.textColor=[UIColor whiteColor];
+    _lblloanSchedule.font=[UIFont systemFontOfSize:10];
+    _lblloanSchedule.textAlignment=NSTextAlignmentLeft;
+    [_headbottom addSubview:_lblloanSchedule];
+    
+    
+    _uw=[[UIWebView alloc] init];
+    _uw.frame=CGRectMake(0, _lblloanSchedule.maxY+KHeight(14), kSCREENW, _headbottom.height-KHeight(40)-(_lblloanSchedule.maxY+KHeight(14)));
+    _uw.opaque = NO;
+   [_uw setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"1月标b.png"]]];
+
+    //http://27.115.115.86:8060/product/investRecordPage?bidTypeStr=1&idStr=1
+    //   NSString *strurl=[NSString stringWithFormat:@"%@/product/investRecordPage?bidTypeStr=%@&idStr=%@", APIPREFIX,_model.bidType,_model.planId];
+    
+//    NSString *strurl=[NSString stringWithFormat:@"http://27.115.115.86:8060/product/investRecordPage?bidTypeStr=%@&idStr=%@",self.modelData.bidType,self.modelData.planId];
+    
+//    NSURL* url = [NSURL URLWithString:strurl];//创建URL
+//    NSURLRequest* request = [NSURLRequest requestWithURL:url];//创建NSURLRequest
+//    [_uw loadRequest:request];//加载
+    [_headbottom addSubview:_uw];
+    
+    
+    
+    
+    
+    
+    [_headview addSubview:_headbottom];
+    
+    _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, kSCREENW, kSCREENH-KHeight(49)) style:UITableViewStyleGrouped];
+    _tableView.delegate = self;
+    _tableView.dataSource = self;
+    [self.view addSubview:_tableView];
+    _tableView.tableHeaderView =_headview;
+    _tableView.separatorColor=[UIColor clearColor];
+        _tableView.header = [MJRefreshNormalHeader headerWithRefreshingTarget:self refreshingAction:@selector(shuaxin)];
+    [self.view addSubview:_tableView];
+    //[self loadBannerData];
+    
+    UIButton  *btn1=[UIButton buttonWithType:UIButtonTypeCustom];
+    btn1.frame=CGRectMake(0, kSCREENH-KHeight(49), KWidth(49), KHeight(49));
+    btn1.backgroundColor=[UIColor whiteColor];
+    [btn1 setImage:[UIImage imageNamed:@"Rectangle"] forState:UIControlStateNormal];
+        [btn1 addTarget:self action:@selector(GoKefu) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:btn1];
+    
+    
+    UIButton  *btn2=[UIButton buttonWithType:UIButtonTypeCustom];
+    btn2.frame=CGRectMake(btn1.maxX, kSCREENH-KHeight(49), kSCREENW-btn1.maxX, KHeight(49));
+    [btn2 setTitle:@"立即抢购" forState:UIControlStateNormal];
+    btn2.backgroundColor=[UIColor orangeColor];
+    [btn2 addTarget:self action:@selector(goQiangGou) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:btn2];
+    
+    
+}
+
+-(void)GoKefu
+{
+    
+    // 关于我们
+    DSYAbountUsWebViewController *aboutUsVC = [[DSYAbountUsWebViewController alloc] init];
+    aboutUsVC.strurl=[NSString stringWithFormat:@"%@/content/help?type2=cs", APIPREFIX];
+    //        aboutUsVC.title = _dataArray[indexPath.row];
+    aboutUsVC.hidesBottomBarWhenPushed = YES;
+    [self.navigationController pushViewController:aboutUsVC animated:YES];
+    
+}
+
+
+
+
+-(void)shuaxin
+{
+    
+    [self loadData];
+    [self LoadDetailData];
+    
+}
+
+
+
+
+
+-(void)goQiangGou
+{
+
+    
+    if ([TOKEN length] == 0) {
+        [self pushToLoginController];
+    } else {
+            NSString *timestamp = [LYDTool createTimeStamp];
+            NSDictionary *secretDict = @{@"bidType":self.modelData.bidType,@"appKey":APPKEY, @"timestamp":timestamp, @"deviceId":DEVICEID, @"token":TOKEN};
+            // 生成签名认证
+            NSString *sign = [LYDTool createMD5SignWithDictionary:secretDict];
+            NSDictionary *para = @{@"bidType":self.modelData.bidType,@"appKey":APPKEY, @"timestamp":timestamp, @"deviceId":DEVICEID, @"token":TOKEN, @"sign":sign};
+            
+            // 开始请求数据
+            [LYDTool sendGetWithUrl:[NSString stringWithFormat:@"%@/product/plans/%@", APIPREFIX,self.modelData.planId] parameters:para success:^(id data) {
+                [MBProgressHUD hideHUDForView:self.view animated:YES];
+                
+                id backData = LYDJSONSerialization(data);
+                
+                if ([[backData valueForKey:@"code"] integerValue] == 200) {
+                    YiYueBiaoGouMaiViewController *detailVC = [[YiYueBiaoGouMaiViewController alloc] init];
+                    detailVC.model =  [XYPlanModel baseModelWithDic:backData[@"planModel"]];
+                    detailVC.myBalance=backData[@"availableBalance"];
+                    detailVC.hidesBottomBarWhenPushed = YES;
+                    [self.navigationController pushViewController:detailVC animated:YES];
+                } else if ([[backData valueForKey:@"code"] integerValue] == 600) {
+                    [DSYUtils showSuccessForStatus_600_ForViewController:self];
+                } else {
+                    
+                    XYErrorHud *errorHud = [[XYErrorHud alloc] initWithTitle:@"获取余额失败" andDoneBtnTitle:nil andDoneBtnHidden:YES];
+                    [self.view.window addSubview:errorHud];
+                    //self.balanceLabel.text = [NSString stringWithFormat:@"余额获取失败"];
+                }
+                
+                
+                
+            } fail:^(NSError *error, AFHTTPRequestOperation *operation) {
+                [MBProgressHUD hideHUDForView:self.view animated:YES];
+                NSInteger errorData = operation.response.statusCode;
+                
+                NSLog(@"%zi",operation.response.statusCode);
+                
+                if (errorData == 401) {
+                    // 401错误处理
+                    [DSYUtils showResponseError_401_ForViewController:self];
+                } else if (errorData == 404) {
+                    [DSYUtils showResponseError_404_ForViewController:self message:@"未找到该用户，是否登陆" okHandler:^(UIAlertAction *action) {
+                        [self pushToLoginController];
+                        
+                    } cancelHandler:^(UIAlertAction *action) {
+                    }];
+                }
+                else if (errorData==500) {
+                    [DSYUtils showSuccessForStatus_600_ForViewController:self];
+                }
+                
+                else {
+                    [MBProgressHUD hideHUDForView:self.view animated:YES];
+                    XYErrorHud *errorHud = [[XYErrorHud alloc] initWithTitle:@"网络繁忙" andDoneBtnTitle:nil andDoneBtnHidden:YES];
+                    [self.view.window addSubview:errorHud];
+                }
+            }];
+        
+    }
+
+}
+
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    
+    return 2+self.dataArr.count;
+    
+}
+
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    
+    return 1;
+}
+
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    
+    
+    if (indexPath.section==0) {
+        static NSString *identify = @"cell";
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identify];
+        
+        if (cell == nil) {
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:identify];
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            
+        }
+        cell.textLabel.text=@"产品详情";
+        cell.textLabel.font=[UIFont systemFontOfSize:16];
+        cell.textLabel.textColor=[UIColor colorWithRed:34/255.0 green:34/255.0 blue:34/255.0 alpha:1/1.0];
+        
+        return cell;
+    }
+    else  if (indexPath.section==1+self.dataArr.count) {
+        static NSString *identify = @"cell";
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identify];
+        
+        if (cell == nil) {
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:identify];
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            
+        }
+        cell.textLabel.text=@"更多问题";
+        cell.textLabel.font=[UIFont systemFontOfSize:16];
+        cell.textLabel.textColor=[UIColor colorWithRed:34/255.0 green:34/255.0 blue:34/255.0 alpha:1/1.0];
+        return cell;
+    }
+    else
+    {
+        
+        
+        WenTiCell *cell = [WenTiCell cellWithTableView:tableView];
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        cell.model = self.dataArr[indexPath.section-1];
+        return cell;
+        
+    }
+    
+    
+    
+    
+}
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return 10;
+}
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+    
+    return 0.01f;
+    
+}
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    
+    if (indexPath.section==0) {//@"产品详情";
+        return KHeight(44);
+    }
+    else  if (indexPath.section==1+self.dataArr.count) {//更多问题
+        return KHeight(44);
+    }
+    else
+    {
+        return [self.dataArr[indexPath.section-1] cellHeight];
+    }
+    
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    if (indexPath.section==0) {//@"产品详情";
+        LDBDetailViewController *planDetailVC = [[LDBDetailViewController alloc] init];
+        
+        planDetailVC.model = self.modelData;
+        [self.navigationController pushViewController:planDetailVC animated:YES];
+    }
+    else  if (indexPath.section==1+self.dataArr.count) {//更多问题
+        DSYAbountUsWebViewController *aboutUsVC = [[DSYAbountUsWebViewController alloc] init];
+        aboutUsVC.strurl=[NSString stringWithFormat:@"%@/content/help/faq/list", APIPREFIX];
+        
+        //        aboutUsVC.title = _dataArray[indexPath.row];
+        aboutUsVC.hidesBottomBarWhenPushed = YES;
+        [self.navigationController pushViewController:aboutUsVC animated:YES];
+    }
+    else
+    {
+        
+    }
+    
+}
+
+
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

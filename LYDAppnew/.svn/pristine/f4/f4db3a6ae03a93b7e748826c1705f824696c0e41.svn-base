@@ -1,0 +1,44 @@
+//
+//  FuWuCollectionViewCell.m
+//  LYDApp
+//
+//  Created by lyd_Mac on 2017/6/30.
+//  Copyright © 2017年 dookay_73. All rights reserved.
+//
+
+#import "FuWuCollectionViewCell.h"
+#import "UIImageView+WebCache.h"
+
+@implementation FuWuCollectionViewCell
+-(instancetype)initWithFrame:(CGRect)frame
+{
+    self=[super initWithFrame:frame];
+    if (self) {
+        self.image=[[UIImageView alloc]init];
+        [self.contentView addSubview:self.image];
+        [self.image mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.equalTo(self.contentView);
+            make.centerX.equalTo(self.contentView.mas_centerX);
+            make.size.mas_equalTo(CGSizeMake(KWidth(68), KHeight(60)));
+        }];
+        
+        self.label=[[UILabel alloc]init];
+        self.label.font= [UIFont fontWithName:@".PingFangSC-Light" size:KWidth(14)];
+        self.label.textColor=RGB(34, 34, 34);
+        self.label.textAlignment=NSTextAlignmentCenter;
+        [self.contentView addSubview:self.label];
+        [self.label mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.and.right.equalTo(self.contentView);
+            make.top.equalTo(self.image.mas_bottom).mas_offset(KHeight(14));
+            make.height.mas_equalTo(KHeight(17));
+        }];
+    }
+    return self;
+}
+
+-(void)FuWuCollectionViewCellWithDic:(NSMutableDictionary *)dic{
+    [self.image setImageWithURL:[NSURL URLWithString:dic[@"serviceImg"]] placeholderImage:nil];
+    self.label.text=dic[@"serviceTitle"];
+}
+
+@end

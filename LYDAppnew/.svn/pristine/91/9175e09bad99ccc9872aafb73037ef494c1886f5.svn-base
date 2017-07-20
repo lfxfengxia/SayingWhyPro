@@ -1,0 +1,241 @@
+//
+//  xiaoxiCell.m
+//  LYDApp
+//
+//  Created by fcl on 2017/7/1.
+//  Copyright © 2017年 dookay_73. All rights reserved.
+//
+
+#import "xiaoxiCell.h"
+@interface xiaoxiCell ()
+
+
+@property (nonatomic, strong) UILabel   *pushStr;
+@property (nonatomic, strong) UILabel   *pushTime;
+@property (nonatomic, strong) UILabel   *title;
+@property(nonatomic,strong) UIView *viewline;
+
+@end
+
+
+@implementation xiaoxiCell
+
++ (instancetype)cellWithTableView:(UITableView *)tableView
+{
+    static NSString *ID = @"xiaoxiCell";
+    xiaoxiCell *cell = [tableView dequeueReusableCellWithIdentifier:ID];
+    if (!cell) {
+        cell = [[xiaoxiCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:ID];
+        cell.backgroundColor =[UIColor colorWithRed:0.96 green:0.96 blue:0.95 alpha:1.00];
+
+        [cell createUI];
+    }
+    return cell;
+}
+
+- (void)createUI
+{
+//    self.contentLabel = [[UILabel alloc] init];
+//    self.contentLabel.textColor = [UIColor grayColor];
+//    self.contentLabel.numberOfLines = 0;
+//    self.contentLabel.font = [UIFont systemFontOfSize:KHeight(10)];
+//    [self.contentView addSubview:self.contentLabel];
+//    
+//    self.timeLabel = [[UILabel alloc] init];
+//    self.timeLabel.textAlignment=NSTextAlignmentRight;
+//    self.timeLabel.font = [UIFont systemFontOfSize:KHeight(10)];
+//    self.timeLabel.textColor=[UIColor grayColor];
+//    [self.contentView addSubview:self.timeLabel];
+//    
+//    self.userRealNameLabel = [[UILabel alloc] init];
+//    self.userRealNameLabel.font = [UIFont systemFontOfSize:KHeight(13)];
+//    [self.contentView addSubview:self.userRealNameLabel];
+//    
+//    self.userPhoneLabel = [[UILabel alloc] init];
+//    self.userPhoneLabel.textColor = TEXTGARY;
+//    self.userPhoneLabel.font = [UIFont systemFontOfSize:KHeight(10)];
+//    self.userPhoneLabel.textColor=[UIColor grayColor];
+//    [self.contentView addSubview:self.userPhoneLabel];
+//    
+//    
+//    
+//    self.replayContentLabel = [[UILabel alloc] init];
+//    self.replayContentLabel.textColor = [self colorWithHexString:@"#ab7900"];
+//    self.replayContentLabel.numberOfLines = 0;
+//    self.replayContentLabel.font = [UIFont systemFontOfSize:KHeight(10)];
+//    [self.contentView addSubview:self.replayContentLabel];
+    
+    self.title = [[UILabel alloc] init];
+    self.title.frame = CGRectMake((kSCREENW-351)/2, KHeight(10), KWidth(351), KHeight(30));
+    self.title.text = @"消息标题";
+    self.title.font = [UIFont fontWithName:@".PingFangSC-Regular" size:14];
+    self.title.textColor = [UIColor colorWithRed:34/255.0 green:34/255.0 blue:34/255.0 alpha:1/1.0];
+    self.title.backgroundColor=[UIColor whiteColor];
+    [self.contentView addSubview:self.title];
+    
+    
+    
+    
+    self.pushTime = [[UILabel alloc] init];
+    self.pushTime.frame = CGRectMake((kSCREENW-351)/2, self.title.maxY, KWidth(351), KHeight(30));
+    self.pushTime.text = @"日期和时间";
+    self.pushTime.font = [UIFont fontWithName:@".PingFangSC-Light" size:10];
+    self.pushTime.textColor = [UIColor colorWithRed:134/255.0 green:134/255.0 blue:134/255.0 alpha:1/1.0];
+    self.pushTime.backgroundColor=[UIColor whiteColor];
+    [self.contentView addSubview:self.pushTime];
+    
+    
+    self.viewline = [[UIView alloc] init];
+    self.viewline.frame = CGRectMake((kSCREENW-351)/2, self.pushTime.maxY, KWidth(351), 2);
+    [self.contentView addSubview:self.viewline];
+    
+    
+    
+    _pushStr = [[UILabel alloc] init];
+    _pushStr.frame = CGRectMake((kSCREENW-351)/2, self.viewline.maxY, KWidth(351), 72);
+    _pushStr.numberOfLines = 0;
+    _pushStr.text = @"消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息消息";
+    _pushStr.font = [UIFont fontWithName:@".PingFangSC-Light" size:12];
+    _pushStr.textColor = [UIColor colorWithRed:34/255.0 green:34/255.0 blue:34/255.0 alpha:1/1.0];
+    _pushStr.backgroundColor=[UIColor whiteColor];
+    [self.contentView addSubview:_pushStr];
+    
+}
+
+
+
+
+-(UIColor *) colorWithHexString: (NSString *)color
+{
+    NSString *cString = [[color stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] uppercaseString];
+    
+    // String should be 6 or 8 characters
+    if ([cString length] < 6) {
+        return [UIColor clearColor];
+    }
+    
+    // strip 0X if it appears
+    if ([cString hasPrefix:@"0X"])
+        cString = [cString substringFromIndex:2];
+    if ([cString hasPrefix:@"#"])
+        cString = [cString substringFromIndex:1];
+    if ([cString length] != 6)
+        return [UIColor clearColor];
+    
+    // Separate into r, g, b substrings
+    NSRange range;
+    range.location = 0;
+    range.length = 2;
+    
+    //r
+    NSString *rString = [cString substringWithRange:range];
+    
+    //g
+    range.location = 2;
+    NSString *gString = [cString substringWithRange:range];
+    
+    //b
+    range.location = 4;
+    NSString *bString = [cString substringWithRange:range];
+    
+    // Scan values
+    unsigned int r, g, b;
+    [[NSScanner scannerWithString:rString] scanHexInt:&r];
+    [[NSScanner scannerWithString:gString] scanHexInt:&g];
+    [[NSScanner scannerWithString:bString] scanHexInt:&b];
+    
+    return [UIColor colorWithRed:((float) r / 255.0f) green:((float) g / 255.0f) blue:((float) b / 255.0f) alpha:1.0f];
+}
+
+
+
+
+
+- (void)setModel:(xiaoxiModel *)model
+{
+    _model = model;
+    
+    
+    
+//    NSMutableString *userName = [NSMutableString string];
+//    if (model.userRealName) {
+//        
+//        if (model.userRealName.length > 2) {
+//            userName = [NSMutableString stringWithString:[model.userRealName stringByReplacingCharactersInRange:NSMakeRange(model.userRealName.length - 2, 2) withString:@"**"]];
+//        } else {
+//            userName = [NSMutableString stringWithString:[model.userRealName stringByReplacingCharactersInRange:NSMakeRange(model.userRealName.length - 1, 1) withString:@"*"]];
+//        }
+//    }
+//    
+//    self.userRealNameLabel.text=userName;
+//    self.userRealNameLabel.frame= CGRectMake(KWidth(10), KHeight(10), kSCREENW - KWidth(10) * 2, KHeight(15));
+//    
+//    
+//    
+//    
+//    NSString *phone = [model.userPhone stringByReplacingCharactersInRange:NSMakeRange(3, 4) withString:@"****"];
+//    self.userPhoneLabel.text=phone;
+//    self.userPhoneLabel.frame=CGRectMake(KWidth(10), self.userRealNameLabel.maxY+KHeight(10), (kSCREENW - KWidth(10) * 2)/2, KHeight(10));
+//    
+//    
+//    
+//    
+//    
+//    
+//    
+//    
+//    NSTimeInterval _interval=[model.createTime doubleValue] / 1000.0;
+//    NSDate *date = [NSDate dateWithTimeIntervalSince1970:_interval];
+//    NSDateFormatter *objDateformat = [[NSDateFormatter alloc] init];
+//    [objDateformat setDateFormat:@"yyyy-MM-dd"];
+//    NSLog(@"%@", [objDateformat stringFromDate: date]);
+//    
+//    
+//    self.timeLabel.text= [objDateformat stringFromDate: date];
+//    self.timeLabel.frame=CGRectMake(self.userPhoneLabel.maxX, self.userRealNameLabel.maxY+KHeight(10), (kSCREENW - KWidth(10) * 2)/2, KHeight(10));
+//    
+//    
+//    CGFloat commentH = [Helper heightOfString:model.content font:[UIFont systemFontOfSize:KHeight(10)] width:kSCREENW - KWidth(10) * 2];
+//    self.contentLabel.frame = CGRectMake(KWidth(10), self.userPhoneLabel.maxY+KHeight(10), kSCREENW - KWidth(10) * 2, commentH);
+//    self.contentLabel.text = model.content;
+//    
+//    
+//    
+//    
+//    CGFloat commentH1 = [Helper heightOfString:model.replayContent font:[UIFont systemFontOfSize:KHeight(10)] width:kSCREENW - KWidth(10) * 2];
+//    self.replayContentLabel.frame = CGRectMake(KWidth(10), self.contentLabel.maxY+KHeight(10), kSCREENW - KWidth(10) * 2, commentH1);
+//    self.replayContentLabel.text = model.replayContent;
+//    
+//
+    
+        NSTimeInterval _interval=[_model.pushTime doubleValue] / 1000.0;
+        NSDate *date = [NSDate dateWithTimeIntervalSince1970:_interval];
+        NSDateFormatter *objDateformat = [[NSDateFormatter alloc] init];
+        [objDateformat setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+        NSLog(@"%@", [objDateformat stringFromDate: date]);
+    
+    
+    self.pushTime.text=[objDateformat stringFromDate: date];
+    
+    self.title.text = _model.title;
+    
+        CGFloat commentH1 = [Helper heightOfString:_model.pushStr font:[UIFont systemFontOfSize:12] width:KWidth(351)];
+        _pushStr.frame = CGRectMake((kSCREENW-351)/2, self.viewline.maxY, KWidth(351), commentH1+KHeight(40));
+        _pushStr.text = _model.pushStr;
+    self.model.cellHeight = _pushStr.maxY;
+    
+    
+}
+
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+    
+    // Configure the view for the selected state
+}
+@end
